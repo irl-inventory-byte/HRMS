@@ -1,0 +1,2254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HRMS Employee Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Login screen -->
+<div id="loginScreen" style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+  <div class="tablecard" style="max-width:380px; width:100%; padding:28px;">
+    <div class="brand" style="margin-bottom:18px;">
+      <div class="mark">H</div>
+      <div class="name">HRMS<span>Sign in</span></div>
+    </div>
+    <div id="loginConfigWarning"></div>
+    <div class="field"><label>Email</label><input type="text" id="loginEmail" placeholder="you@company.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+    <div id="loginError"></div>
+    <div style="display:flex; gap:8px; margin-top:6px;">
+      <button class="btn primary" style="flex:1; justify-content:center;" onclick="handleLogin()">Sign in</button>
+      <button class="btn" style="flex:1; justify-content:center;" onclick="handleSignup()">Create account</button>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px; margin:16px 0;">
+      <div style="flex:1; height:1px; background:var(--border);"></div>
+      <span class="section-note" style="margin:0;">or</span>
+      <div style="flex:1; height:1px; background:var(--border);"></div>
+    </div>
+    <button class="btn" style="width:100%; justify-content:center; display:flex; align-items:center; gap:8px;" onclick="handleGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.6 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 7 29.6 5 24 5c-7.8 0-14.5 4.4-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.5C29.6 35 26.9 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.5 5C9.4 39.6 16.1 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.8-2.9 5.2-5.4 6.9l6.6 5.5C40.3 37 44 31.3 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+      Sign in with Google
+    </button>
+    <p class="section-note" style="margin-top:14px;">New accounts default to the <strong>Employee</strong> role — except accounts signing up (email/password or Google) with a <strong>@gmail.com</strong> address, which default to <strong>Candidate</strong> and only see the job Application Form. An admin promotes a user's role from the in-app <strong>Access Control</strong> page (or directly in the Supabase table editor's <code>profiles</code> table, for the very first account).</p>
+  </div>
+</div>
+
+<div class="shell" id="appShell" style="display:none;">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">H</div>
+      <div class="name">HRMS<span>Prototype</span></div>
+    </div>
+    <div class="navgroup">
+      <div class="navlabel">Overview</div>
+      <button class="navbtn active" id="tabHomeBtn" onclick="switchPage('home')"><span class="dot"></span>Dashboard</button>
+    </div>
+    <div class="navgroup">
+      <div class="navlabel">Workforce</div>
+      <button class="navbtn" id="tabDirectoryBtn" onclick="switchPage('directory')"><span class="dot"></span>Employee Directory</button>
+      <button class="navbtn" id="tabLeaveBtn" onclick="switchPage('leave')"><span class="dot"></span>Leave &amp; Attendance</button>
+      <button class="navbtn" id="tabOnboardingBtn" onclick="switchPage('onboarding')"><span class="dot"></span>Onboarding</button>
+    </div>
+    <div class="navgroup">
+      <div class="navlabel">Hiring</div>
+      <button class="navbtn" id="tabOpeningsBtn" onclick="switchPage('openings')"><span class="dot"></span>Job Openings</button>
+      <button class="navbtn" id="tabWalkinBtn" onclick="switchPage('walkin')"><span class="dot"></span>Walk-in Queue</button>
+      <button class="navbtn" id="tabInterviewsBtn" onclick="switchPage('interviews')"><span class="dot"></span>Interviews</button>
+      <button class="navbtn" id="tabApplicationsBtn" onclick="switchPage('applications')"><span class="dot"></span>Applications</button>
+    </div>
+    <div class="navgroup">
+      <div class="navlabel">Administration</div>
+      <button class="navbtn" id="tabPeopleBtn" onclick="switchPage('people')"><span class="dot"></span>People</button>
+      <button class="navbtn" id="tabAccessBtn" onclick="switchPage('access')"><span class="dot"></span>Access Control</button>
+    </div>
+    <div class="navgroup">
+      <div class="navlabel">Candidate</div>
+      <button class="navbtn" id="tabFormBtn" onclick="switchPage('form')"><span class="dot"></span>Application Form</button>
+    </div>
+    <div class="navfoot" style="display:flex; flex-direction:column; gap:8px;">
+      <div>
+        <label style="display:block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:5px;">Signed in as</label>
+        <div class="readonly" id="currentUserBox" style="font-size:12.5px;">—</div>
+      </div>
+      <button class="btn" onclick="toggleTheme()">Toggle theme</button>
+      <button class="btn" onclick="handleLogout()">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+  <div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageSub">A quick read on headcount, hiring activity and what changed recently.</p>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn primary" id="headerAction" onclick="openApplyModal()">+ New job application</button>
+    </div>
+  </header>
+
+  <div id="pageHome">
+    <div class="tiles" id="homeTiles"></div>
+    <div style="display:grid; grid-template-columns: 1.3fr 1fr; gap:16px;" class="homegrid">
+      <div class="tablecard" style="padding:20px;">
+        <h3 style="font-size:15px; margin-bottom:14px;">Headcount by org unit</h3>
+        <div id="homeOrgBreakdown"></div>
+      </div>
+      <div class="tablecard" style="padding:20px;">
+        <h3 style="font-size:15px; margin-bottom:14px;">Recent activity</h3>
+        <div id="homeActivity" class="activityfeed"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pageDirectory" style="display:none;">
+  <div class="tiles" id="tiles"></div>
+
+  <div class="toolbar">
+    <div class="filters">
+      <input type="text" id="searchBox" placeholder="Search name, emp ID, email…" oninput="renderTable()" style="width:220px;">
+      <select id="filterOrg" onchange="renderTable()"><option value="">All org units</option></select>
+      <select id="filterStatus" onchange="renderTable()">
+        <option value="">All statuses</option>
+        <option value="Active">Active</option>
+        <option value="Notice Period">Notice Period</option>
+        <option value="Exited">Exited</option>
+        <option value="Transferred">Transferred</option>
+      </select>
+    </div>
+    <div class="taglist" id="resultCount"></div>
+  </div>
+
+  <div class="tablecard">
+    <table>
+      <thead>
+        <tr>
+          <th>Emp ID</th>
+          <th>Name</th>
+          <th>Title</th>
+          <th>Org Unit</th>
+          <th>Manager</th>
+          <th>Joining Date</th>
+          <th>Status</th>
+          <th>Contract End</th>
+          <th>Exit Reason</th>
+          <th>Office Email</th>
+          <th>Personal Email</th>
+          <th>Phone</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  </div><!-- /pageDirectory -->
+
+  <div id="pageInterviews" style="display:none;">
+    <div class="tiles" id="interviewTiles"></div>
+    <div class="toolbar">
+      <div class="filters">
+        <input type="text" id="intSearchBox" placeholder="Search candidate, position, email…" oninput="renderInterviews()" style="width:240px;">
+        <select id="intFilterOutcome" onchange="renderInterviews()">
+          <option value="">All outcomes</option>
+          <option value="Selected">Selected</option>
+          <option value="Rejected">Rejected</option>
+          <option value="Pending">Pending</option>
+          <option value="Scheduled">Scheduled</option>
+        </select>
+      </div>
+      <div class="taglist" id="intResultCount"></div>
+    </div>
+    <div class="tablecard">
+      <table>
+        <thead>
+          <tr>
+            <th>Candidate</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Position</th>
+            <th>Round</th>
+            <th>Interview Date</th>
+            <th>Interviewer</th>
+            <th>Outcome</th>
+            <th>Feedback</th>
+            <th>History</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="interviewTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="pageLeave" style="display:none;">
+    <div class="tiles" id="leaveTiles"></div>
+    <div class="toolbar">
+      <div class="filters">
+        <input type="text" id="leaveSearchBox" placeholder="Search employee…" oninput="renderLeave()" style="width:200px;">
+        <select id="leaveFilterStatus" onchange="renderLeave()">
+          <option value="">All statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="taglist" id="leaveResultCount"></div>
+    </div>
+    <div class="tablecard">
+      <table>
+        <thead>
+          <tr>
+            <th>Emp ID</th>
+            <th>Name</th>
+            <th>Leave Type</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Days</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Balance left</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leaveTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="pageOnboarding" style="display:none;">
+    <div class="tiles" id="onboardTiles"></div>
+    <div class="toolbar">
+      <div class="filters">
+        <input type="text" id="onboardSearchBox" placeholder="Search new joiner…" oninput="renderOnboarding()" style="width:220px;">
+        <select id="onboardFilterStatus" onchange="renderOnboarding()">
+          <option value="">All statuses</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+          <option value="Overdue">Overdue</option>
+        </select>
+      </div>
+      <div class="taglist" id="onboardResultCount"></div>
+    </div>
+    <div class="tablecard">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Org Unit</th>
+            <th>Start Date</th>
+            <th>Checklist</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="onboardTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="pageOpenings" style="display:none;">
+    <div class="tiles" id="openingTiles"></div>
+    <div class="toolbar">
+      <div class="filters">
+        <input type="text" id="openSearchBox" placeholder="Search position, org unit…" oninput="renderOpenings()" style="width:220px;">
+        <select id="openFilterStatus" onchange="renderOpenings()">
+          <option value="">All statuses</option>
+          <option value="Open">Open</option>
+          <option value="On Hold">On Hold</option>
+          <option value="Closed">Closed</option>
+        </select>
+      </div>
+      <div class="taglist" id="openResultCount"></div>
+    </div>
+    <div class="tablecard">
+      <table>
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Org Unit</th>
+            <th>Vacancies</th>
+            <th>Applications</th>
+            <th>Posted</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="openingTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="pageWalkin" style="display:none;">
+    <div class="tiles" id="walkinTiles"></div>
+
+    <div class="tablecard" id="walkinLoadCard" style="padding:22px;">
+      <h3 style="font-size:15px; margin-bottom:6px;">Load candidate queue</h3>
+      <p class="section-note">One candidate per line — <strong>Name, Email, Phone</strong> (comma-separated). Paste as many as you like; built for days with 100+ walk-ins, served one at a time.</p>
+      <textarea id="walkinPaste" style="width:100%; min-height:150px; background:var(--surface-2); border:1px solid var(--border); border-radius:7px; padding:10px 12px; font-family:var(--font-body); font-size:13px; color:var(--text);" placeholder="Rahul Sinha, rahul.sinha88@gmail.com, +91 98201 55443&#10;Megha Iyer, megha.iyer@gmail.com, +91 99102 33445"></textarea>
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn primary" onclick="loadWalkinQueue()">Load queue</button>
+        <button class="btn" onclick="loadSampleWalkin()">Use sample list</button>
+      </div>
+    </div>
+
+    <div id="walkinServing" style="display:none;">
+      <div class="tablecard" style="padding:22px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+          <div>
+            <div class="section-note" style="margin-bottom:4px; text-transform:uppercase; letter-spacing:.04em; font-weight:700;">Now serving · <span id="walkinPosition">—</span></div>
+            <h2 id="walkinName" style="font-size:27px; display:flex; align-items:center; gap:10px;"><span id="walkinNameText">—</span><span id="walkinStatusPill"></span></h2>
+            <div style="color:var(--text-dim); font-size:13.5px; margin-top:4px;" id="walkinContact">—</div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <label style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--text-dim); background:var(--surface-2); border:1px solid var(--border); border-radius:7px; padding:8px 12px; cursor:pointer;">
+              <input type="checkbox" id="walkinAttended" onchange="walkinToggleAttended()" style="width:15px; height:15px; accent-color: var(--accent);">
+              Candidate has arrived
+            </label>
+            <label style="display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--text-dim); background:var(--surface-2); border:1px solid var(--border); border-radius:7px; padding:8px 12px; cursor:pointer;">
+              <input type="checkbox" id="walkinInterviewed" onchange="walkinToggleInterviewed()" style="width:15px; height:15px; accent-color: var(--accent);">
+              Went for interview
+            </label>
+            <button class="btn" onclick="walkinPrev()">← Previous</button>
+            <button class="btn" onclick="walkinNext()">Skip →</button>
+            <button class="btn" onclick="resetWalkinQueue()">End queue</button>
+          </div>
+        </div>
+        <div id="walkinHistoryBox" style="margin-top:16px;"></div>
+      </div>
+
+      <div class="tablecard" style="padding:20px;">
+        <h3 style="margin-bottom:12px; font-size:15px;">Log this round</h3>
+        <div class="grid2">
+          <div class="field"><label>Position</label><input type="text" id="wkPosition" placeholder="Role this candidate is being seen for"></div>
+          <div class="field">
+            <label>Round</label>
+            <select id="wkRound"><option>Screening</option><option>Technical</option><option>Managerial</option><option>HR / Final</option></select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Interviewer</label><input type="text" id="wkInterviewer" placeholder="Your name"></div>
+          <div class="field">
+            <label>Outcome</label>
+            <select id="wkOutcome" onchange="walkinCheckWarning()"><option>Scheduled</option><option>Pending</option><option>Selected</option><option>Rejected</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Feedback</label><textarea id="wkFeedback" placeholder="Notes for this round"></textarea></div>
+        <div id="wkWarning"></div>
+        <div style="display:flex; gap:8px; justify-content:flex-end;" id="walkinSaveActions">
+          <button class="btn" onclick="walkinSkipNoSave()">Skip, no record</button>
+          <button class="btn primary" onclick="walkinSaveAndNext()">Save &amp; next candidate →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pageApplications" style="display:none;">
+    <div class="tiles" id="appTiles"></div>
+    <div class="toolbar">
+      <div class="filters">
+        <input type="text" id="appSearchBox" placeholder="Search applicant, position…" oninput="renderApplications()" style="width:240px;">
+        <select id="appFilterResult" onchange="renderApplications()">
+          <option value="">All results</option>
+          <option value="Pending">Pending</option>
+          <option value="Accepted">Accepted</option>
+          <option value="Auto-Rejected">Auto-rejected (duplicate)</option>
+        </select>
+      </div>
+      <div class="taglist" id="appResultCount"></div>
+    </div>
+    <div class="tablecard">
+      <table>
+        <thead>
+          <tr>
+            <th>Emp ID</th>
+            <th>Applicant</th>
+            <th>Current Title</th>
+            <th>Position Applied For</th>
+            <th>Date Applied</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody id="appTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="pagePeople" style="display:none;">
+    <p class="section-note" id="peopleStatLine">0 people. Email and mobile number are required when adding or editing a person. Use their Google login email to link their account. Deactivate instead of deleting so history stays intact.</p>
+
+    <details class="notebox" style="margin-bottom:14px; cursor:pointer;">
+      <summary style="cursor:pointer; font-weight:700;">Bulk import from a spreadsheet</summary>
+      <div style="margin-top:10px; cursor:auto;">
+        <p class="section-note" style="margin-bottom:8px;">Copy rows from a spreadsheet (Full name, Role, City, Email, Mobile — one person per line) and paste them below.</p>
+        <textarea id="peopleBulkText" rows="6" style="width:100%; font-family:monospace; font-size:12.5px;" placeholder="Asha Mehta&#9;IM&#9;Bangalore&#9;asha@company.com&#9;+91 98765 43210"></textarea>
+        <div style="margin-top:8px; display:flex; gap:10px; align-items:center;">
+          <button class="btn primary" onclick="bulkImportPeople()">Import people</button>
+          <span class="taglist" id="peopleBulkResult"></span>
+        </div>
+      </div>
+    </details>
+
+    <div class="tablecard" style="padding:16px; margin-bottom:14px;">
+      <h3 style="margin:0 0 12px;">Filter people</h3>
+      <div class="toolbar" style="flex-wrap:wrap;">
+        <div class="filters" style="flex-wrap:wrap;">
+          <div>
+            <label class="section-note" style="display:block; margin-bottom:4px;">Role</label>
+            <select id="peopleFilterRole"><option value="">All roles</option></select>
+          </div>
+          <div>
+            <label class="section-note" style="display:block; margin-bottom:4px;">City</label>
+            <select id="peopleFilterCity"><option value="">All cities</option></select>
+          </div>
+          <button class="btn primary" onclick="renderPeople()" style="align-self:flex-end;">Apply filters</button>
+        </div>
+      </div>
+      <p class="section-note" style="margin-top:10px;" id="peopleFilterSummary"></p>
+    </div>
+
+    <div class="tablecard" style="margin-bottom:14px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>City</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="peopleTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="tablecard" style="padding:16px;">
+      <h3 style="margin:0 0 12px;">Add person</h3>
+      <div class="toolbar" style="flex-wrap:wrap;">
+        <input type="text" id="peopleAddName" placeholder="Full name" style="width:180px;">
+        <select id="peopleAddRole"></select>
+        <select id="peopleAddCity"></select>
+        <input type="email" id="peopleAddEmail" placeholder="Email (required)" style="width:200px;">
+        <input type="text" id="peopleAddMobile" placeholder="Mobile (required)" style="width:160px;">
+        <button class="btn primary" onclick="addPerson()">Add person</button>
+      </div>
+      <div id="peopleAddError"></div>
+    </div>
+  </div>
+
+  <div id="pageForm" style="display:none;">
+    <div class="tablecard" style="padding:16px; max-width:560px; margin-bottom:14px;">
+      <h3 style="margin:0 0 12px;">Job application form</h3>
+      <p class="section-note" style="margin-bottom:12px;">Submit an application for an open position. You'll see the outcome here once it's reviewed.</p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div>
+          <label class="section-note" style="display:block; margin-bottom:4px;">Full name</label>
+          <input type="text" id="candFormName" placeholder="Your full name" style="width:100%;">
+        </div>
+        <div>
+          <label class="section-note" style="display:block; margin-bottom:4px;">Email</label>
+          <input type="email" id="candFormEmail" style="width:100%;" readonly>
+        </div>
+        <div>
+          <label class="section-note" style="display:block; margin-bottom:4px;">Position applying for</label>
+          <input type="text" id="candFormPosition" placeholder="e.g. Warehouse Associate">
+        </div>
+        <div id="candFormDupWarning"></div>
+        <button class="btn primary" style="align-self:flex-start;" onclick="submitCandidateApplication()">Submit application</button>
+        <div id="candFormResult"></div>
+      </div>
+    </div>
+    <div class="tablecard" style="padding:16px; max-width:560px;">
+      <h3 style="margin:0 0 10px;">Your applications</h3>
+      <div id="candFormHistory" class="taglist"></div>
+    </div>
+  </div>
+
+  <div id="pageAccess" style="display:none;">
+    <div class="notebox" style="margin-bottom:14px;">
+      Every account's view and edit rights are decided by the role set here — <strong>Admin</strong> sees and edits everything, <strong>HR</strong> only sees Dashboard + Interviews + Applications, <strong>Manager</strong> only sees Dashboard + Leave, <strong>Interviewer</strong> only sees Dashboard + Walk-in + Interviews, <strong>Employee</strong> only sees the Dashboard, and <strong>Candidate</strong> (auto-assigned to anyone who signs up with a @gmail.com address) only sees the Application Form. Changing a role here updates Postgres directly — Row Level Security enforces it even if someone tampers with the browser.
+    </div>
+    <div class="toolbar">
+      <div class="filters">
+        <input type="text" id="accessSearchBox" placeholder="Search name or email…" oninput="renderAccess()" style="width:240px;">
+        <select id="accessFilterRole" onchange="renderAccess()">
+          <option value="">All roles</option>
+          <option value="admin">Admin</option>
+          <option value="hr">HR</option>
+          <option value="manager">Manager</option>
+          <option value="interviewer">Interviewer</option>
+          <option value="employee">Employee</option>
+        </select>
+      </div>
+      <div class="taglist" id="accessUserCount"></div>
+    </div>
+    <div class="tablecard">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Joined</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="accessTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="hint">Prototype data resets on reload · built to show the exit, internal-transfer, application-screening and interview flows</footer>
+  </div>
+  </main>
+</div>
+
+<!-- Exit Modal -->
+<div class="modal-backdrop" id="exitBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Employee Exit Form</h2>
+      <button class="x" onclick="closeModal('exitBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="section-note">Filed by the employee's manager. Submitting marks the employee's status as <strong>Notice Period</strong> and logs the reason.</p>
+      <div class="grid2">
+        <div class="field"><label>Employee ID</label><div class="readonly" id="exitEmpId">—</div></div>
+        <div class="field"><label>Employee Name</label><div class="readonly" id="exitEmpName">—</div></div>
+        <div class="field"><label>Title</label><div class="readonly" id="exitTitle">—</div></div>
+        <div class="field"><label>Org Unit</label><div class="readonly" id="exitOrgUnit">—</div></div>
+      </div>
+      <div class="field">
+        <label>Reporting Manager (filing this form)</label>
+        <div class="readonly" id="exitManager">—</div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Last working day</label>
+          <input type="date" id="exitLastDay">
+        </div>
+        <div class="field">
+          <label>Exit type</label>
+          <select id="exitType">
+            <option>Resignation — voluntary</option>
+            <option>Involuntary — performance</option>
+            <option>Involuntary — restructuring</option>
+            <option>Contract end (not renewed)</option>
+            <option>Retirement</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Exit reason (manager's notes)</label>
+        <textarea id="exitReason" placeholder="e.g. Accepted an offer elsewhere; cited compensation and career growth."></textarea>
+      </div>
+      <div class="field">
+        <label>Rehire eligible?</label>
+        <select id="exitRehire">
+          <option>Yes</option>
+          <option>No</option>
+          <option>Review case-by-case</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('exitBackdrop')">Cancel</button>
+      <button class="btn danger" onclick="submitExit()">Submit exit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Edit Modal -->
+<div class="modal-backdrop" id="editBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Edit Employee Record</h2>
+      <button class="x" onclick="closeModal('editBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="section-note">Direct edit — changes position/details immediately, no reason or approval needed. For a tracked move with a reason and feedback, use "Move" instead.</p>
+      <div class="grid2">
+        <div class="field"><label>Employee ID</label><div class="readonly" id="editEmpId">—</div></div>
+        <div class="field">
+          <label>Status</label>
+          <select id="editStatus">
+            <option>Active</option>
+            <option>Notice Period</option>
+            <option>Transferred</option>
+            <option>Exited</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Name</label><input type="text" id="editName"></div>
+      <div class="grid2">
+        <div class="field"><label>Title / Position</label><input type="text" id="editTitle"></div>
+        <div class="field"><label>Org Unit</label><input type="text" id="editOrg"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Manager</label><input type="text" id="editManager"></div>
+        <div class="field"><label>Joining Date</label><input type="date" id="editJoin"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Contract End (if any)</label><input type="date" id="editContractEnd"></div>
+        <div class="field"><label>Phone</label><input type="text" id="editPhone"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Office Email</label><input type="text" id="editOfficeEmail"></div>
+        <div class="field"><label>Personal Email</label><input type="text" id="editPersonalEmail"></div>
+      </div>
+      <div class="field"><label>Exit Reason (if applicable)</label><textarea id="editExitReason"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('editBackdrop')">Cancel</button>
+      <button class="btn primary" onclick="saveEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Internal Transfer Modal -->
+<div class="modal-backdrop" id="transferBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Internal Move / Role Change</h2>
+      <button class="x" onclick="closeModal('transferBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="section-note">For a transfer, promotion, or lateral move within the org. Needs sign-off reason and feedback from both managers.</p>
+      <div class="grid2">
+        <div class="field"><label>Employee ID</label><div class="readonly" id="trEmpId">—</div></div>
+        <div class="field"><label>Employee Name</label><div class="readonly" id="trEmpName">—</div></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Current Org Unit</label><div class="readonly" id="trCurrentOrg">—</div></div>
+        <div class="field"><label>Current Title</label><div class="readonly" id="trCurrentTitle">—</div></div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Move type</label>
+          <select id="trType">
+            <option>Lateral transfer</option>
+            <option>Promotion</option>
+            <option>Demotion</option>
+            <option>Department change</option>
+            <option>Manager change only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Effective date</label>
+          <input type="date" id="trDate">
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>New org unit</label>
+          <input type="text" id="trNewOrg" placeholder="e.g. Platform Engineering">
+        </div>
+        <div class="field">
+          <label>New title</label>
+          <input type="text" id="trNewTitle" placeholder="e.g. Senior Data Analyst">
+        </div>
+      </div>
+      <div class="field">
+        <label>New manager</label>
+        <input type="text" id="trNewManager" placeholder="Name of receiving manager">
+      </div>
+      <div class="field">
+        <label>Reason for move</label>
+        <textarea id="trReason" placeholder="e.g. Business need in Platform team; employee requested closer alignment with data infra work."></textarea>
+      </div>
+      <div class="field">
+        <label>Feedback (current manager, for the record)</label>
+        <textarea id="trFeedback" placeholder="Performance summary, strengths, anything the receiving manager should know."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('transferBackdrop')">Cancel</button>
+      <button class="btn primary" onclick="submitTransfer()">Submit move</button>
+    </div>
+  </div>
+</div>
+
+<!-- Job Application Modal -->
+<div class="modal-backdrop" id="applyBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Internal Job Application</h2>
+      <button class="x" onclick="closeModal('applyBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="section-note">The system checks this employee's application history automatically. A duplicate application to a position already applied for is auto-rejected with a system-generated reason.</p>
+      <div class="field">
+        <label>Applicant</label>
+        <select id="appEmp" onchange="refreshAppHistory()"></select>
+      </div>
+      <div class="field">
+        <label>Position applying for</label>
+        <input type="text" id="appPosition" placeholder="e.g. Senior Product Designer — Growth" oninput="checkDuplicateLive()">
+      </div>
+      <div class="field">
+        <label>Cover note (optional)</label>
+        <textarea id="appNote" placeholder="Why this role, relevant experience…"></textarea>
+      </div>
+      <div id="dupWarning"></div>
+      <div class="field">
+        <label>Prior applications on file</label>
+        <div id="appHistory" class="taglist"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('applyBackdrop')">Cancel</button>
+      <button class="btn primary" id="appSubmitBtn" onclick="submitApplication()">Submit application</button>
+    </div>
+  </div>
+</div>
+
+<!-- Interview Modal -->
+<div class="modal-backdrop" id="interviewBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Log Interview</h2>
+      <button class="x" onclick="closeModal('interviewBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="section-note">Candidates are matched by email across interview rounds. If this candidate has an earlier rejection on file, you'll see a warning before saving.</p>
+      <div class="grid2">
+        <div class="field"><label>Candidate name</label><input type="text" id="intName" placeholder="Full name" oninput="checkRejectionLive()"></div>
+        <div class="field"><label>Candidate email</label><input type="text" id="intEmail" placeholder="name@email.com" oninput="checkRejectionLive()"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Phone</label><input type="text" id="intPhone" placeholder="+91 …"></div>
+        <div class="field"><label>Position</label><input type="text" id="intPosition" placeholder="Role applied for"></div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Round</label>
+          <select id="intRound">
+            <option>Screening</option>
+            <option>Technical</option>
+            <option>Managerial</option>
+            <option>HR / Final</option>
+          </select>
+        </div>
+        <div class="field"><label>Interview date</label><input type="date" id="intDate"></div>
+      </div>
+      <div class="field"><label>Interviewer</label><input type="text" id="intInterviewer" placeholder="Name of interviewer"></div>
+      <div class="grid2">
+        <div class="field">
+          <label>Outcome</label>
+          <select id="intOutcome" onchange="checkRejectionLive()">
+            <option>Scheduled</option>
+            <option>Pending</option>
+            <option>Selected</option>
+            <option>Rejected</option>
+          </select>
+        </div>
+        <div class="field"><label>Prior rounds on file</label><div class="readonly" id="intPriorCount">—</div></div>
+      </div>
+      <div class="field"><label>Feedback</label><textarea id="intFeedback" placeholder="Interviewer's notes"></textarea></div>
+      <div id="rejectWarning"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('interviewBackdrop')">Cancel</button>
+      <button class="btn primary" onclick="submitInterview()">Save interview record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Onboarding Modal -->
+<div class="modal-backdrop" id="onboardBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="onboardModalTitle">New Joiner Onboarding</h2>
+      <button class="x" onclick="closeModal('onboardBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid2">
+        <div class="field"><label>Name</label><input type="text" id="obName" placeholder="Full name"></div>
+        <div class="field"><label>Position</label><input type="text" id="obPosition" placeholder="Role"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Org unit</label><input type="text" id="obOrg" placeholder="e.g. Platform Engineering"></div>
+        <div class="field"><label>Start date</label><input type="date" id="obStartDate"></div>
+      </div>
+      <div class="field">
+        <label>Onboarding checklist</label>
+        <div id="obChecklist" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('onboardBackdrop')">Close</button>
+      <button class="btn primary" id="onboardSaveBtn" onclick="saveOnboarding()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Convert to Full-Time Modal -->
+<div class="modal-backdrop" id="convertBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Convert to Full-Time</h2>
+      <button class="x" onclick="closeModal('convertBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="section-note">Ends this employee's contract and moves them onto a permanent role. Their contract end date is cleared and status returns to Active.</p>
+      <div class="grid2">
+        <div class="field"><label>Employee</label><div class="readonly" id="cvEmpName">—</div></div>
+        <div class="field"><label>Current contract end</label><div class="readonly" id="cvContractEnd">—</div></div>
+      </div>
+      <div class="field">
+        <label>New full-time title</label>
+        <input type="text" id="cvNewTitle" placeholder="e.g. DevOps Engineer">
+      </div>
+      <div class="field">
+        <label>Link to open position (optional)</label>
+        <select id="cvOpeningLink"><option value="">— None —</option></select>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Effective date</label><input type="date" id="cvEffectiveDate"></div>
+        <div class="field">
+          <label>New contract type</label>
+          <div class="readonly">Full-Time (Permanent)</div>
+        </div>
+      </div>
+      <div class="field"><label>Notes</label><textarea id="cvNotes" placeholder="Reason / approval notes"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('convertBackdrop')">Cancel</button>
+      <button class="btn primary" onclick="submitConvert()">Confirm conversion</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leave Modal -->
+<div class="modal-backdrop" id="leaveBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Apply for Leave</h2>
+      <button class="x" onclick="closeModal('leaveBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Employee</label>
+        <select id="leaveEmp" onchange="refreshLeaveBalance()"></select>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Leave type</label>
+          <select id="leaveType" onchange="refreshLeaveBalance()">
+            <option>Casual</option>
+            <option>Sick</option>
+            <option>Earned</option>
+          </select>
+        </div>
+        <div class="field"><label>Balance remaining</label><div class="readonly" id="leaveBalanceBox">—</div></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>From</label><input type="date" id="leaveFrom" onchange="computeLeaveDays()"></div>
+        <div class="field"><label>To</label><input type="date" id="leaveTo" onchange="computeLeaveDays()"></div>
+      </div>
+      <div class="field"><label>Days requested</label><div class="readonly" id="leaveDaysBox">—</div></div>
+      <div class="field"><label>Reason</label><textarea id="leaveReason" placeholder="Reason for leave"></textarea></div>
+      <div id="leaveWarning"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('leaveBackdrop')">Cancel</button>
+      <button class="btn primary" onclick="submitLeave()">Submit request</button>
+    </div>
+  </div>
+</div>
+
+<!-- Opening Modal -->
+<div class="modal-backdrop" id="openingBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="openingModalTitle">New Job Opening</h2>
+      <button class="x" onclick="closeModal('openingBackdrop')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid2">
+        <div class="field"><label>Position title</label><input type="text" id="openPosition" placeholder="e.g. Senior Backend Engineer"></div>
+        <div class="field"><label>Org unit</label><input type="text" id="openOrg" placeholder="e.g. Platform Engineering"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Vacancies</label><input type="number" id="openVacancies" min="1" value="1"></div>
+        <div class="field">
+          <label>Status</label>
+          <select id="openStatus"><option>Open</option><option>On Hold</option><option>Closed</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Posted date</label><input type="date" id="openPosted"></div>
+      <div class="field"><label>Notes</label><textarea id="openNotes" placeholder="Hiring manager, must-have skills, etc."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('openingBackdrop')">Cancel</button>
+      <button class="btn primary" onclick="saveOpening()">Save opening</button>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Profile Panel -->
+<div class="panel-backdrop" id="profileBackdrop" onclick="if(event.target===this) closeProfilePanel()">
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-avatar" id="profAvatar">—</div>
+        <h2 id="profName" style="font-size:19px;">—</h2>
+        <div style="color:var(--text-dim); font-size:13px; margin-top:2px;" id="profTitle">—</div>
+      </div>
+      <button class="x" onclick="closeProfilePanel()" style="font-size:22px;">&times;</button>
+    </div>
+    <div class="panel-body">
+      <div class="panel-section">
+        <div class="seclabel">Status</div>
+        <div id="profStatusPill"></div>
+      </div>
+      <div class="panel-section">
+        <div class="seclabel">Role</div>
+        <div class="panel-row"><span class="k">Employee ID</span><span class="v" id="profEmpId">—</span></div>
+        <div class="panel-row"><span class="k">Org Unit</span><span class="v" id="profOrg">—</span></div>
+        <div class="panel-row"><span class="k">Manager</span><span class="v" id="profManager">—</span></div>
+        <div class="panel-row"><span class="k">Joining Date</span><span class="v" id="profJoin">—</span></div>
+        <div class="panel-row"><span class="k">Contract End</span><span class="v" id="profContractEnd">—</span></div>
+      </div>
+      <div class="panel-section">
+        <div class="seclabel">Contact</div>
+        <div class="panel-row"><span class="k">Office Email</span><span class="v" id="profOfficeEmail">—</span></div>
+        <div class="panel-row"><span class="k">Personal Email</span><span class="v" id="profPersonalEmail">—</span></div>
+        <div class="panel-row"><span class="k">Phone</span><span class="v" id="profPhone">—</span></div>
+      </div>
+      <div class="panel-section">
+        <div class="seclabel">Leave balance</div>
+        <div class="panel-row"><span class="k">Casual</span><span class="v" id="profLeaveCasual">—</span></div>
+        <div class="panel-row"><span class="k">Sick</span><span class="v" id="profLeaveSick">—</span></div>
+        <div class="panel-row"><span class="k">Earned</span><span class="v" id="profLeaveEarned">—</span></div>
+      </div>
+      <div class="panel-section" id="profExitSection" style="display:none;">
+        <div class="seclabel">Exit</div>
+        <div style="font-size:13px; color:var(--text-dim);" id="profExitReason">—</div>
+      </div>
+      <div class="panel-section">
+        <div class="seclabel">Hiring history on file</div>
+        <div class="taglist" id="profHiringHistory"></div>
+      </div>
+    </div>
+    <div class="panel-foot" id="profFootActions" style="flex-wrap:wrap;">
+      <button class="btn" onclick="closeProfilePanel(); openEditModal(profileTargetId);">Edit</button>
+      <button class="btn" onclick="closeProfilePanel(); openTransferModal(profileTargetId);">Move</button>
+      <button class="btn" id="profConvertBtn" onclick="closeProfilePanel(); openConvertModal(profileTargetId);" style="display:none;">Convert to FT</button>
+      <button class="btn danger" onclick="closeProfilePanel(); openExitModal(profileTargetId);">Exit</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="lib.js"></script>
+<script src="people.js"></script>
+<script src="access.js"></script>
+<script>
+/* ---------------- mock data ---------------- */
+let employees = [
+  { id:"EMP-1001", name:"Ananya Rao", title:"Senior Data Analyst", org:"Instacore Analytics", manager:"Vikram Shah", join:"2022-03-14", status:"Active", contractEnd:"", exitReason:"", officeEmail:"ananya.rao@company.com", personalEmail:"ananya.r.92@gmail.com", phone:"+91 98200 11234" },
+  { id:"EMP-1002", name:"Rohit Mehta", title:"Product Manager", org:"Kouzina Group", manager:"Sneha Kapoor", join:"2021-07-01", status:"Active", contractEnd:"", exitReason:"", officeEmail:"rohit.mehta@company.com", personalEmail:"rohitm.pm@gmail.com", phone:"+91 98111 22334" },
+  { id:"EMP-1003", name:"Fatima Sheikh", title:"UX Designer", org:"Platform Engineering", manager:"Arjun Nair", join:"2023-01-09", status:"Notice Period", contractEnd:"", exitReason:"Accepted external offer — relocation", officeEmail:"fatima.sheikh@company.com", personalEmail:"fatima.sheikh.design@gmail.com", phone:"+91 99887 65432" },
+  { id:"EMP-1004", name:"Karan Verma", title:"Contract DevOps Engineer", org:"Platform Engineering", manager:"Arjun Nair", join:"2024-06-01", status:"Active", contractEnd:"2026-12-31", exitReason:"", officeEmail:"karan.verma@company.com", personalEmail:"karanv.ops@gmail.com", phone:"+91 97654 33221" },
+  { id:"EMP-1005", name:"Priya Desai", title:"HR Business Partner", org:"People Ops", manager:"Meera Joshi", join:"2020-11-20", status:"Active", contractEnd:"", exitReason:"", officeEmail:"priya.desai@company.com", personalEmail:"priyad.hr@gmail.com", phone:"+91 98765 44556" },
+  { id:"EMP-1006", name:"Sahil Kapoor", title:"Backend Engineer", org:"Instacore Analytics", manager:"Vikram Shah", join:"2022-09-05", status:"Exited", contractEnd:"", exitReason:"Involuntary — restructuring (team sunset)", officeEmail:"sahil.kapoor@company.com", personalEmail:"sahil.k.dev@gmail.com", phone:"+91 90011 22556" },
+  { id:"EMP-1007", name:"Neha Pillai", title:"Business Analyst", org:"Kinetic Instacore", manager:"Deepak Rathi", join:"2023-04-18", status:"Transferred", contractEnd:"", exitReason:"", officeEmail:"neha.pillai@company.com", personalEmail:"neha.pillai21@gmail.com", phone:"+91 93344 55667" },
+  { id:"EMP-1008", name:"Arjun Nair", title:"Engineering Manager", org:"Platform Engineering", manager:"Ritu Sen", join:"2019-02-11", status:"Active", contractEnd:"", exitReason:"", officeEmail:"arjun.nair@company.com", personalEmail:"arjun.nair.eng@gmail.com", phone:"+91 99001 44332" },
+];
+
+let applications = [
+  { empId:"EMP-1003", position:"Staff UX Designer — Design Systems", date:"2026-10-02", result:"Pending" },
+  { empId:"EMP-1007", position:"Senior Business Analyst — Kinetic", date:"2026-09-11", result:"Accepted" },
+  { empId:"EMP-1004", position:"Full-time DevOps Engineer", date:"2026-11-01", result:"Pending" },
+];
+
+let auditLog = [];
+let activityFeed = [];
+function logActivity(text) {
+  activityFeed.unshift({ text, at: new Date() });
+  if (activityFeed.length > 30) activityFeed.pop();
+}
+function timeAgo(date) {
+  const mins = Math.round((Date.now() - date.getTime()) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return date.toLocaleDateString();
+}
+
+const LEAVE_POLICY = { Casual: 12, Sick: 10, Earned: 15 };
+let leaveRequests = [
+  { empId: "EMP-1001", type: "Casual", from: "2026-11-18", to: "2026-11-19", days: 2, reason: "Family function", status: "Approved" },
+  { empId: "EMP-1002", type: "Sick", from: "2026-11-05", to: "2026-11-05", days: 1, reason: "Fever", status: "Approved" },
+  { empId: "EMP-1008", type: "Earned", from: "2026-11-24", to: "2026-11-27", days: 4, reason: "Personal travel", status: "Pending" },
+  { empId: "EMP-1005", type: "Casual", from: "2026-11-10", to: "2026-11-10", days: 1, reason: "Appointment", status: "Rejected" },
+];
+
+const ONBOARD_CHECKLIST_TEMPLATE = [
+  "Offer letter signed", "ID proof & documents collected", "Office email & accounts created",
+  "Laptop / equipment issued", "Access card / building access", "HR induction completed",
+  "Policy & handbook acknowledged", "Buddy / manager introduction"
+];
+let onboardingList = [
+  { name: "Megha Iyer", position: "UX Designer", org: "Platform Engineering", startDate: "2026-11-20",
+    tasks: ONBOARD_CHECKLIST_TEMPLATE.map((label, i) => ({ label, done: i < 3 })) },
+];
+
+let openings = [
+  { position: "Senior Backend Engineer", org: "Instacore Analytics", vacancies: 2, status: "Open", posted: "2026-10-20", notes: "Needs strong Python + distributed systems background." },
+  { position: "Staff UX Designer — Design Systems", org: "Platform Engineering", vacancies: 1, status: "Open", posted: "2026-09-28", notes: "Internal transfer candidates preferred." },
+  { position: "Full-time DevOps Engineer", org: "Platform Engineering", vacancies: 1, status: "On Hold", posted: "2026-10-05", notes: "Budget approval pending." },
+  { position: "Business Analyst", org: "Kinetic Instacore", vacancies: 1, status: "Closed", posted: "2026-08-01", notes: "Filled via internal transfer." },
+];
+
+let interviews = [
+  { name:"Rahul Sinha", email:"rahul.sinha88@gmail.com", phone:"+91 98201 55443", position:"Backend Engineer", round:"Screening", date:"2026-09-02", interviewer:"Vikram Shah", outcome:"Rejected", feedback:"Weak on system design fundamentals." },
+  { name:"Rahul Sinha", email:"rahul.sinha88@gmail.com", phone:"+91 98201 55443", position:"Backend Engineer", round:"Technical", date:"2026-10-20", interviewer:"Arjun Nair", outcome:"Rejected", feedback:"Reapplied 6 weeks later — same gaps in DB design." },
+  { name:"Megha Iyer", email:"megha.iyer@gmail.com", phone:"+91 99102 33445", position:"UX Designer", round:"Screening", date:"2026-11-05", interviewer:"Fatima Sheikh", outcome:"Selected", feedback:"Strong portfolio, moving to next round." },
+  { name:"Devansh Oza", email:"devansh.oza@gmail.com", phone:"+91 97123 88990", position:"Business Analyst", round:"HR / Final", date:"2026-08-14", interviewer:"Deepak Rathi", outcome:"Rejected", feedback:"Compensation mismatch." },
+];
+
+let accounts = []; // profiles rows from Supabase: { id, full_name, email, role, created_at } — empty until logged in
+let people = []; // rows from the people table: { id, name, role, city, email, mobile, status } — separate from employees
+
+/* ---------------- page switching ---------------- */
+const PAGES = {
+  home: {
+    el: 'pageHome', btn: 'tabHomeBtn',
+    title: 'Dashboard',
+    sub: 'A quick read on headcount, hiring activity and what changed recently.',
+    actionLabel: '+ New job application', action: () => openApplyModal(), onEnter: renderHome,
+  },
+  directory: {
+    el: 'pageDirectory', btn: 'tabDirectoryBtn',
+    title: 'Employee Directory',
+    sub: 'Core employee records — lifecycle events (exit, internal move) update this list directly.',
+    actionLabel: '+ New job application', action: () => openApplyModal(),
+  },
+  interviews: {
+    el: 'pageInterviews', btn: 'tabInterviewsBtn',
+    title: 'Interviews',
+    sub: 'Every round for every candidate, matched by email. Repeat rejections are flagged automatically.',
+    actionLabel: '+ Log interview', action: () => openInterviewModal(), onEnter: renderInterviews,
+  },
+  leave: {
+    el: 'pageLeave', btn: 'tabLeaveBtn',
+    title: 'Leave & Attendance',
+    sub: 'Leave requests, approvals and balances across Casual, Sick and Earned leave.',
+    actionLabel: '+ Apply leave', action: () => openLeaveModal(), onEnter: renderLeave,
+  },
+  onboarding: {
+    el: 'pageOnboarding', btn: 'tabOnboardingBtn',
+    title: 'Onboarding',
+    sub: 'Every new joiner\'s checklist — documents, access, equipment, induction — tracked through to completion.',
+    actionLabel: '+ New joiner', action: () => openOnboardModal(), onEnter: renderOnboarding,
+  },
+  openings: {
+    el: 'pageOpenings', btn: 'tabOpeningsBtn',
+    title: 'Job Openings',
+    sub: 'Every open position and how many vacancies are left on each.',
+    actionLabel: '+ New opening', action: () => openOpeningModal(), onEnter: renderOpenings,
+  },
+  walkin: {
+    el: 'pageWalkin', btn: 'tabWalkinBtn',
+    title: 'Walk-in Interview Queue',
+    sub: 'Paste a candidate list and go through them one at a time — each one\'s full interview and application history loads automatically.',
+    actionLabel: 'Reset queue', action: () => resetWalkinQueue(), onEnter: renderWalkinTiles,
+  },
+  applications: {
+    el: 'pageApplications', btn: 'tabApplicationsBtn',
+    title: 'Applications',
+    sub: 'Every internal application on file. A repeat application for the same position is auto-rejected on submit.',
+    actionLabel: '+ New job application', action: () => openApplyModal(), onEnter: renderApplications,
+  },
+  people: {
+    el: 'pagePeople', btn: 'tabPeopleBtn',
+    title: 'People',
+    sub: 'A lighter-weight person registry — for assigning things to people across hubs/cities, separate from full employee records.',
+    actionLabel: '', action: null, onEnter: renderPeople,
+  },
+  access: {
+    el: 'pageAccess', btn: 'tabAccessBtn',
+    title: 'Access Control',
+    sub: 'Every signed-up account and the role that decides what they can see and edit.',
+    actionLabel: '', action: null, onEnter: renderAccess,
+  },
+  form: {
+    el: 'pageForm', btn: 'tabFormBtn',
+    title: 'Job Application Form',
+    sub: 'Submit your application — someone from HR will review it.',
+    actionLabel: '', action: null, onEnter: renderCandidateForm,
+  },
+};
+function switchPage(page) {
+  const title = document.getElementById('pageTitle');
+  const sub = document.getElementById('pageSub');
+  const actionBtn = document.getElementById('headerAction');
+  Object.entries(PAGES).forEach(([key, cfg]) => {
+    document.getElementById(cfg.el).style.display = (key === page) ? '' : 'none';
+    document.getElementById(cfg.btn).classList.toggle('active', key === page);
+  });
+  const cfg = PAGES[page];
+  title.textContent = cfg.title;
+  sub.textContent = cfg.sub;
+  const editable = page === 'home' ? canEdit('applications') : canEdit(page);
+  actionBtn.style.display = (editable && cfg.actionLabel) ? '' : 'none';
+  actionBtn.textContent = cfg.actionLabel;
+  actionBtn.onclick = cfg.action;
+  if (cfg.onEnter) cfg.onEnter();
+}
+
+/* ---------------- Home dashboard ---------------- */
+function renderHome() {
+  const total = employees.length;
+  const notice = employees.filter(e => e.status === "Notice Period").length;
+  const pendingApps = applications.filter(a => a.result === "Pending").length;
+  const activeRounds = interviews.filter(i => i.outcome === "Scheduled" || i.outcome === "Pending").length;
+  const queueRemaining = walkinQueue.length ? walkinQueue.length - walkinIndex - 1 : 0;
+  const openPositions = openings.filter(o => o.status === "Open").length;
+  const openVacancies = openings.filter(o => o.status === "Open").reduce((sum, o) => sum + Number(o.vacancies || 0), 0);
+  const pendingLeave = leaveRequests.filter(l => l.status === "Pending").length;
+  const onboardingActive = onboardingList.filter(o => onboardStatus(o) !== "Completed").length;
+  // "Needs attention" rolls up every pending/in-progress item from across the hiring pages into one number,
+  // so the dashboard stays to 4 tiles instead of listing every sub-metric separately.
+  const needsAttention = pendingLeave + pendingApps + activeRounds + onboardingActive + queueRemaining;
+  document.getElementById('homeTiles').innerHTML = `
+    <div class="tile accentline"><div class="num">${total}</div><div class="label">Total headcount</div></div>
+    <div class="tile goodline"><div class="num">${openPositions}</div><div class="label">Open positions (${openVacancies} vacancies)</div></div>
+    <div class="tile warnline"><div class="num">${notice}</div><div class="label">In notice period</div></div>
+    <div class="tile"><div class="num">${needsAttention}</div><div class="label">Needs attention (leave, applications, interviews, onboarding)</div></div>
+  `;
+
+  const orgs = {};
+  employees.forEach(e => { orgs[e.org] = (orgs[e.org] || 0) + 1; });
+  const maxCount = Math.max(1, ...Object.values(orgs));
+  document.getElementById('homeOrgBreakdown').innerHTML = Object.entries(orgs)
+    .sort((a, b) => b[1] - a[1])
+    .map(([org, count]) => `
+      <div class="orgbar-row">
+        <div class="name">${org}</div>
+        <div class="orgbar-track"><div class="orgbar-fill" style="width:${(count / maxCount) * 100}%"></div></div>
+        <div class="count">${count}</div>
+      </div>
+    `).join('');
+
+  const feed = activityFeed.slice(0, 10);
+  document.getElementById('homeActivity').innerHTML = feed.length
+    ? feed.map(a => `<div class="activity-item"><span class="bullet"></span><div class="body">${a.text}<div class="meta">${timeAgo(a.at)}</div></div></div>`).join('')
+    : `<div class="activity-item"><span class="bullet"></span><div class="body">No activity yet this session.</div></div>`;
+}
+
+/* ---------------- render ---------------- */
+function statusPillClass(s) {
+  if (s === "Active") return "active";
+  if (s === "Notice Period") return "notice";
+  if (s === "Exited") return "exited";
+  if (s === "Transferred") return "transfer";
+  return "active";
+}
+
+function populateOrgFilter() {
+  const sel = document.getElementById('filterOrg');
+  const orgs = [...new Set(employees.map(e => e.org))].sort();
+  sel.innerHTML = '<option value="">All org units</option>' + orgs.map(o => `<option value="${o}">${o}</option>`).join('');
+}
+
+function renderTiles() {
+  const total = employees.length;
+  const active = employees.filter(e => e.status === "Active").length;
+  const notice = employees.filter(e => e.status === "Notice Period").length;
+  const exited = employees.filter(e => e.status === "Exited").length;
+  const contracts = employees.filter(e => e.contractEnd).length;
+  document.getElementById('tiles').innerHTML = `
+    <div class="tile accentline"><div class="num">${total}</div><div class="label">Total headcount</div></div>
+    <div class="tile goodline"><div class="num">${active}</div><div class="label">Active</div></div>
+    <div class="tile warnline"><div class="num">${notice}</div><div class="label">In notice period</div></div>
+    <div class="tile critline"><div class="num">${exited}</div><div class="label">Exited (all time)</div></div>
+    <div class="tile"><div class="num">${contracts}</div><div class="label">Contracts with end date</div></div>
+  `;
+}
+
+function renderTable() {
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+  const org = document.getElementById('filterOrg').value;
+  const status = document.getElementById('filterStatus').value;
+
+  let rows = employees.filter(e => {
+    const matchesQ = !q || [e.id, e.name, e.officeEmail, e.personalEmail].some(v => v.toLowerCase().includes(q));
+    const matchesOrg = !org || e.org === org;
+    const matchesStatus = !status || e.status === status;
+    return matchesQ && matchesOrg && matchesStatus;
+  });
+
+  document.getElementById('resultCount').innerHTML = `<span class="tag">${rows.length} of ${employees.length} shown</span>`;
+
+  document.getElementById('tableBody').innerHTML = rows.map(e => `
+    <tr>
+      <td class="mono">${e.id}</td>
+      <td><div class="namecell"><strong onclick="openProfilePanel('${e.id}')">${e.name}</strong></div></td>
+      <td>${e.title}</td>
+      <td>${e.org}</td>
+      <td>${e.manager}</td>
+      <td class="mono">${e.join}</td>
+      <td><span class="pill ${statusPillClass(e.status)}">${e.status}</span></td>
+      <td class="mono">${e.contractEnd || "—"}</td>
+      <td style="max-width:220px; white-space:normal; color:var(--text-dim); font-size:12.5px;">${e.exitReason || "—"}</td>
+      <td class="emailcell">${e.officeEmail}</td>
+      <td class="emailcell">${e.personalEmail}</td>
+      <td class="mono">${e.phone}</td>
+      <td>
+        <div class="rowmenu">${canEdit('directory') ? `
+          <button class="btn small" onclick="openEditModal('${e.id}')">Edit</button>
+          <button class="btn small" onclick="openTransferModal('${e.id}')">Move</button>
+          ${e.contractEnd ? `<button class="btn small" onclick="openConvertModal('${e.id}')">Convert to FT</button>` : ``}
+          <button class="btn small" onclick="openExitModal('${e.id}')">Exit</button>
+        ` : `<span class="mono" style="color:var(--text-faint);">View only</span>`}</div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const current = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+}
+
+/* ---------------- toast ---------------- */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+/* ---------------- Exit flow ---------------- */
+let exitTargetId = null;
+function openExitModal(empId) {
+  const e = employees.find(x => x.id === empId);
+  if (!e) return;
+  exitTargetId = empId;
+  document.getElementById('exitEmpId').textContent = e.id;
+  document.getElementById('exitEmpName').textContent = e.name;
+  document.getElementById('exitTitle').textContent = e.title;
+  document.getElementById('exitOrgUnit').textContent = e.org;
+  document.getElementById('exitManager').textContent = e.manager + " (filing on behalf of this employee)";
+  document.getElementById('exitLastDay').value = "";
+  document.getElementById('exitReason').value = "";
+  document.getElementById('exitRehire').value = "Yes";
+  document.getElementById('exitType').value = "Resignation — voluntary";
+  document.getElementById('exitBackdrop').classList.add('open');
+}
+function submitExit() {
+  const e = employees.find(x => x.id === exitTargetId);
+  if (!e) return;
+  const lastDay = document.getElementById('exitLastDay').value;
+  const type = document.getElementById('exitType').value;
+  const reasonText = document.getElementById('exitReason').value.trim();
+  if (!lastDay || !reasonText) {
+    showToast("Please add a last working day and exit reason.");
+    return;
+  }
+  e.status = "Notice Period";
+  e.exitReason = `${type} — ${reasonText}`;
+  auditLog.push({ type: "Exit filed", empId: e.id, by: e.manager, at: new Date().toISOString() });
+  logActivity(`Exit filed for <strong>${e.name}</strong> — now in Notice Period.`);
+  persistEmployee(e);
+  closeModal('exitBackdrop');
+  renderAll();
+  showToast(`Exit filed for ${e.name}. Status set to Notice Period.`);
+}
+
+/* ---------------- Employee profile panel ---------------- */
+let profileTargetId = null;
+function openProfilePanel(empId) {
+  const e = employees.find(x => x.id === empId);
+  if (!e) return;
+  profileTargetId = empId;
+  document.getElementById('profAvatar').textContent = e.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  document.getElementById('profName').textContent = e.name;
+  document.getElementById('profTitle').textContent = `${e.title} · ${e.org}`;
+  document.getElementById('profStatusPill').innerHTML = `<span class="pill ${statusPillClass(e.status)}">${e.status}</span>`;
+  document.getElementById('profEmpId').textContent = e.id;
+  document.getElementById('profOrg').textContent = e.org;
+  document.getElementById('profManager').textContent = e.manager;
+  document.getElementById('profJoin').textContent = e.join;
+  document.getElementById('profContractEnd').textContent = e.contractEnd || "—";
+  document.getElementById('profOfficeEmail').textContent = e.officeEmail;
+  document.getElementById('profPersonalEmail').textContent = e.personalEmail;
+  document.getElementById('profPhone').textContent = e.phone;
+  document.getElementById('profLeaveCasual').textContent = `${leaveBalance(e.id, 'Casual')} / ${LEAVE_POLICY.Casual}`;
+  document.getElementById('profLeaveSick').textContent = `${leaveBalance(e.id, 'Sick')} / ${LEAVE_POLICY.Sick}`;
+  document.getElementById('profLeaveEarned').textContent = `${leaveBalance(e.id, 'Earned')} / ${LEAVE_POLICY.Earned}`;
+  const exitSection = document.getElementById('profExitSection');
+  if (e.exitReason) {
+    exitSection.style.display = '';
+    document.getElementById('profExitReason').textContent = e.exitReason;
+  } else {
+    exitSection.style.display = 'none';
+  }
+  document.getElementById('profConvertBtn').style.display = (e.contractEnd && canEdit('directory')) ? '' : 'none';
+  document.getElementById('profFootActions').style.display = canEdit('directory') ? 'flex' : 'none';
+  const apps = applications.filter(a => a.empId === e.id);
+  const rounds = interviews.filter(i => i.email.toLowerCase() === e.officeEmail.toLowerCase() || i.email.toLowerCase() === e.personalEmail.toLowerCase());
+  const histItems = [
+    ...apps.map(a => `<span class="tag">Applied: ${a.position} · ${a.result}</span>`),
+    ...rounds.map(r => `<span class="tag">Interview: ${r.position} (${r.round}) · ${r.outcome}</span>`),
+  ];
+  document.getElementById('profHiringHistory').innerHTML = histItems.length ? histItems.join('') : `<span class="tag">No applications or interview rounds on file</span>`;
+  document.getElementById('profileBackdrop').classList.add('open');
+}
+function closeProfilePanel() {
+  document.getElementById('profileBackdrop').classList.remove('open');
+}
+
+/* ---------------- Convert contract to full-time ---------------- */
+let convertTargetId = null;
+function openConvertModal(empId) {
+  const e = employees.find(x => x.id === empId);
+  if (!e) return;
+  convertTargetId = empId;
+  document.getElementById('cvEmpName').textContent = `${e.name} (${e.id})`;
+  document.getElementById('cvContractEnd').textContent = e.contractEnd || "—";
+  document.getElementById('cvNewTitle').value = e.title.replace(/^Contract\s+/i, "");
+  document.getElementById('cvEffectiveDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('cvNotes').value = "";
+  const sel = document.getElementById('cvOpeningLink');
+  const matching = openings.filter(o => o.status === "Open" && o.org === e.org);
+  sel.innerHTML = `<option value="">— None —</option>` + openings.map((o, idx) =>
+    `<option value="${idx}" ${matching.includes(o) ? 'selected' : ''}>${o.position} · ${o.org} (${o.vacancies} vacancy)</option>`
+  ).join('');
+  document.getElementById('convertBackdrop').classList.add('open');
+}
+function submitConvert() {
+  const e = employees.find(x => x.id === convertTargetId);
+  if (!e) return;
+  const newTitle = document.getElementById('cvNewTitle').value.trim();
+  const effectiveDate = document.getElementById('cvEffectiveDate').value;
+  if (!newTitle || !effectiveDate) { showToast("New title and effective date are required."); return; }
+  const prevTitle = e.title;
+  e.title = newTitle;
+  e.status = "Active";
+  e.contractEnd = "";
+  const openingIdx = document.getElementById('cvOpeningLink').value;
+  if (openingIdx !== "") {
+    const o = openings[Number(openingIdx)];
+    o.vacancies = Math.max(0, Number(o.vacancies) - 1);
+    if (o.vacancies === 0) o.status = "Closed";
+    persistOpening(o);
+  }
+  logActivity(`<strong>${e.name}</strong> converted from contract (${prevTitle}) to full-time — ${newTitle}, effective ${effectiveDate}.`);
+  persistEmployee(e);
+  closeModal('convertBackdrop');
+  renderAll();
+  showToast(`${e.name} is now full-time: ${newTitle}.`);
+}
+
+/* ---------------- Quick edit flow ---------------- */
+let editTargetId = null;
+function openEditModal(empId) {
+  const e = employees.find(x => x.id === empId);
+  if (!e) return;
+  editTargetId = empId;
+  document.getElementById('editEmpId').textContent = e.id;
+  document.getElementById('editStatus').value = e.status;
+  document.getElementById('editName').value = e.name;
+  document.getElementById('editTitle').value = e.title;
+  document.getElementById('editOrg').value = e.org;
+  document.getElementById('editManager').value = e.manager;
+  document.getElementById('editJoin').value = e.join;
+  document.getElementById('editContractEnd').value = e.contractEnd || "";
+  document.getElementById('editPhone').value = e.phone;
+  document.getElementById('editOfficeEmail').value = e.officeEmail;
+  document.getElementById('editPersonalEmail').value = e.personalEmail;
+  document.getElementById('editExitReason').value = e.exitReason || "";
+  document.getElementById('editBackdrop').classList.add('open');
+}
+function saveEdit() {
+  const e = employees.find(x => x.id === editTargetId);
+  if (!e) return;
+  const name = document.getElementById('editName').value.trim();
+  const title = document.getElementById('editTitle').value.trim();
+  const org = document.getElementById('editOrg').value.trim();
+  const manager = document.getElementById('editManager').value.trim();
+  if (!name || !title || !org || !manager) {
+    showToast("Name, title, org unit and manager are required.");
+    return;
+  }
+  const prevTitle = e.title, prevOrg = e.org;
+  e.name = name;
+  e.title = title;
+  e.org = org;
+  e.manager = manager;
+  e.join = document.getElementById('editJoin').value || e.join;
+  e.contractEnd = document.getElementById('editContractEnd').value;
+  e.phone = document.getElementById('editPhone').value.trim();
+  e.officeEmail = document.getElementById('editOfficeEmail').value.trim();
+  e.personalEmail = document.getElementById('editPersonalEmail').value.trim();
+  e.status = document.getElementById('editStatus').value;
+  e.exitReason = document.getElementById('editExitReason').value.trim();
+  auditLog.push({ type: "Direct edit", empId: e.id, at: new Date().toISOString(),
+    changed: (prevTitle !== title || prevOrg !== org) ? `${prevTitle} / ${prevOrg} → ${title} / ${org}` : "details updated" });
+  logActivity(`<strong>${e.name}</strong>'s record was edited directly.`);
+  persistEmployee(e);
+  closeModal('editBackdrop');
+  renderAll();
+  showToast(`${e.name}'s record updated.`);
+}
+
+/* ---------------- Transfer flow ---------------- */
+let transferTargetId = null;
+function openTransferModal(empId) {
+  const e = employees.find(x => x.id === empId);
+  if (!e) return;
+  transferTargetId = empId;
+  document.getElementById('trEmpId').textContent = e.id;
+  document.getElementById('trEmpName').textContent = e.name;
+  document.getElementById('trCurrentOrg').textContent = e.org;
+  document.getElementById('trCurrentTitle').textContent = e.title;
+  document.getElementById('trType').value = "Lateral transfer";
+  document.getElementById('trDate').value = "";
+  document.getElementById('trNewOrg').value = "";
+  document.getElementById('trNewTitle').value = "";
+  document.getElementById('trNewManager').value = "";
+  document.getElementById('trReason').value = "";
+  document.getElementById('trFeedback').value = "";
+  document.getElementById('transferBackdrop').classList.add('open');
+}
+function submitTransfer() {
+  const e = employees.find(x => x.id === transferTargetId);
+  if (!e) return;
+  const newOrg = document.getElementById('trNewOrg').value.trim();
+  const newTitle = document.getElementById('trNewTitle').value.trim();
+  const newManager = document.getElementById('trNewManager').value.trim();
+  const reason = document.getElementById('trReason').value.trim();
+  const feedback = document.getElementById('trFeedback').value.trim();
+  if (!newOrg || !newTitle || !newManager || !reason) {
+    showToast("Please fill new org, title, manager and reason.");
+    return;
+  }
+  e.org = newOrg;
+  e.title = newTitle;
+  e.manager = newManager;
+  e.status = "Transferred";
+  auditLog.push({ type: "Internal move", empId: e.id, reason, feedback, at: new Date().toISOString() });
+  logActivity(`<strong>${e.name}</strong> moved to ${newTitle}, ${newOrg}.`);
+  persistEmployee(e);
+  closeModal('transferBackdrop');
+  renderAll();
+  showToast(`${e.name} moved to ${newTitle}, ${newOrg}.`);
+}
+
+/* ---------------- Application flow ---------------- */
+function openApplyModal() {
+  const sel = document.getElementById('appEmp');
+  sel.innerHTML = employees.map(e => `<option value="${e.id}">${e.name} (${e.id})</option>`).join('');
+  document.getElementById('appPosition').value = "";
+  document.getElementById('appNote').value = "";
+  document.getElementById('dupWarning').innerHTML = "";
+  document.getElementById('appSubmitBtn').disabled = false;
+  refreshAppHistory();
+  document.getElementById('applyBackdrop').classList.add('open');
+}
+function refreshAppHistory() {
+  const empId = document.getElementById('appEmp').value;
+  const hist = applications.filter(a => a.empId === empId);
+  const box = document.getElementById('appHistory');
+  box.innerHTML = hist.length
+    ? hist.map(a => `<span class="tag">${a.position} · ${a.date} · ${a.result}</span>`).join('')
+    : `<span class="tag">No prior applications on file</span>`;
+  checkDuplicateLive();
+}
+function checkDuplicateLive() {
+  const empId = document.getElementById('appEmp').value;
+  const position = document.getElementById('appPosition').value.trim().toLowerCase();
+  const warnBox = document.getElementById('dupWarning');
+  const submitBtn = document.getElementById('appSubmitBtn');
+  if (!position) { warnBox.innerHTML = ""; submitBtn.disabled = false; return; }
+  const dupe = applications.find(a => a.empId === empId && a.position.trim().toLowerCase() === position);
+  if (dupe) {
+    warnBox.innerHTML = `<div class="notebox crit">⛔ Already applied for this exact position on ${dupe.date} (status: ${dupe.result}). Submitting will be auto-rejected.</div>`;
+  } else {
+    warnBox.innerHTML = `<div class="notebox good">No duplicate found — eligible to submit.</div>`;
+  }
+  submitBtn.disabled = false;
+}
+function submitApplication() {
+  const empId = document.getElementById('appEmp').value;
+  const positionRaw = document.getElementById('appPosition').value.trim();
+  const position = positionRaw.toLowerCase();
+  const e = employees.find(x => x.id === empId);
+  if (!positionRaw) { showToast("Enter the position being applied for."); return; }
+
+  const dupe = applications.find(a => a.empId === empId && a.position.trim().toLowerCase() === position);
+  const today = new Date().toISOString().slice(0,10);
+
+  if (dupe) {
+    const rejectedApp = { empId, position: positionRaw, date: today, result: `Auto-Rejected — duplicate of application filed ${dupe.date}` };
+    applications.push(rejectedApp);
+    persistApplicationInsert(rejectedApp).then(row => { if (row) rejectedApp.id = row.id; });
+    document.getElementById('dupWarning').innerHTML =
+      `<div class="notebox crit">⛔ Auto-rejected: ${e.name} already applied for "${dupe.position}" on ${dupe.date}. System reason logged automatically — no manual review needed.</div>`;
+    showToast(`Application auto-rejected: duplicate detected for ${e.name}.`);
+    logActivity(`<strong>${e.name}</strong>'s application for "${positionRaw}" was auto-rejected (duplicate).`);
+  } else {
+    const newApp = { empId, position: positionRaw, date: today, result: "Pending" };
+    applications.push(newApp);
+    persistApplicationInsert(newApp).then(row => { if (row) newApp.id = row.id; });
+    document.getElementById('dupWarning').innerHTML =
+      `<div class="notebox good">✓ Application submitted for ${e.name} — status: Pending review.</div>`;
+    showToast(`Application submitted for ${e.name}.`);
+    logActivity(`<strong>${e.name}</strong> applied for "${positionRaw}".`);
+  }
+  refreshAppHistory();
+  if (document.getElementById('pageApplications').style.display !== 'none') renderApplications();
+  document.getElementById('appPosition').value = "";
+}
+
+/* ---------------- Candidate application form (Gmail self-signup) ---------------- */
+function renderCandidateForm() {
+  document.getElementById('candFormEmail').value = currentUser ? currentUser.email : "";
+  document.getElementById('candFormDupWarning').innerHTML = "";
+  document.getElementById('candFormResult').innerHTML = "";
+  const email = (currentUser ? currentUser.email : "").toLowerCase();
+  const hist = applications.filter(a => (a.candidateEmail || "").toLowerCase() === email);
+  const box = document.getElementById('candFormHistory');
+  box.innerHTML = hist.length
+    ? hist.map(a => `<span class="tag">${a.position} · ${a.date} · ${a.result}</span>`).join('')
+    : `<span class="tag">No applications submitted yet</span>`;
+}
+function submitCandidateApplication() {
+  const name = document.getElementById('candFormName').value.trim();
+  const email = (currentUser ? currentUser.email : document.getElementById('candFormEmail').value.trim());
+  const positionRaw = document.getElementById('candFormPosition').value.trim();
+  const position = positionRaw.toLowerCase();
+  if (!name) { showToast("Enter your full name."); return; }
+  if (!positionRaw) { showToast("Enter the position being applied for."); return; }
+
+  const dupe = applications.find(a => (a.candidateEmail || "").toLowerCase() === email.toLowerCase() && a.position.trim().toLowerCase() === position);
+  const today = new Date().toISOString().slice(0,10);
+
+  if (dupe) {
+    const rejectedApp = { empId: null, candidateName: name, candidateEmail: email, position: positionRaw, date: today, result: `Auto-Rejected — duplicate of application filed ${dupe.date}` };
+    applications.push(rejectedApp);
+    persistApplicationInsert(rejectedApp).then(row => { if (row) rejectedApp.id = row.id; });
+    document.getElementById('candFormDupWarning').innerHTML =
+      `<div class="notebox crit">⛔ Auto-rejected: you already applied for "${dupe.position}" on ${dupe.date}.</div>`;
+  } else {
+    const newApp = { empId: null, candidateName: name, candidateEmail: email, position: positionRaw, date: today, result: "Pending" };
+    applications.push(newApp);
+    persistApplicationInsert(newApp).then(row => { if (row) newApp.id = row.id; });
+    document.getElementById('candFormResult').innerHTML =
+      `<div class="notebox good">✓ Application submitted — status: Pending review.</div>`;
+    document.getElementById('candFormPosition').value = "";
+  }
+  renderCandidateForm();
+}
+
+/* ---------------- Interview flow ---------------- */
+function rejectionCount(email) {
+  return interviews.filter(i => i.email.toLowerCase() === email.toLowerCase() && i.outcome === "Rejected").length;
+}
+function renderInterviewTiles() {
+  const total = interviews.length;
+  const uniqueCandidates = new Set(interviews.map(i => i.email.toLowerCase())).size;
+  const selected = interviews.filter(i => i.outcome === "Selected").length;
+  const rejected = interviews.filter(i => i.outcome === "Rejected").length;
+  const repeatRejects = [...new Set(interviews.map(i => i.email.toLowerCase()))]
+    .filter(em => rejectionCount(em) >= 2).length;
+  document.getElementById('interviewTiles').innerHTML = `
+    <div class="tile accentline"><div class="num">${total}</div><div class="label">Total interview records</div></div>
+    <div class="tile"><div class="num">${uniqueCandidates}</div><div class="label">Unique candidates</div></div>
+    <div class="tile goodline"><div class="num">${selected}</div><div class="label">Selected</div></div>
+    <div class="tile critline"><div class="num">${rejected}</div><div class="label">Rejected (all rounds)</div></div>
+    <div class="tile warnline"><div class="num">${repeatRejects}</div><div class="label">Candidates with 2+ rejections</div></div>
+  `;
+}
+function outcomePillClass(o) {
+  if (o === "Selected") return "selected";
+  if (o === "Rejected") return "rejected";
+  if (o === "Scheduled") return "scheduled";
+  return "pending";
+}
+function renderInterviews() {
+  renderInterviewTiles();
+  const q = (document.getElementById('intSearchBox').value || "").trim().toLowerCase();
+  const outcomeF = document.getElementById('intFilterOutcome').value;
+  let rows = interviews.filter(i => {
+    const matchesQ = !q || [i.name, i.email, i.position].some(v => v.toLowerCase().includes(q));
+    const matchesOutcome = !outcomeF || i.outcome === outcomeF;
+    return matchesQ && matchesOutcome;
+  });
+  document.getElementById('intResultCount').innerHTML = `<span class="tag">${rows.length} of ${interviews.length} shown</span>`;
+  document.getElementById('interviewTableBody').innerHTML = rows.map(i => {
+    const priorRejections = interviews.filter(x => x.email.toLowerCase() === i.email.toLowerCase() && x.outcome === "Rejected" && !(x === i)).length;
+    const totalRejectionsForCandidate = rejectionCount(i.email);
+    const warn = totalRejectionsForCandidate >= 2 ? `<span class="warnchip">⚠ ${totalRejectionsForCandidate} rejections</span>` : `<span class="mono">—</span>`;
+    return `
+    <tr>
+      <td><strong>${i.name}</strong></td>
+      <td class="emailcell">${i.email}</td>
+      <td class="mono">${i.phone}</td>
+      <td>${i.position}</td>
+      <td>${i.round}</td>
+      <td class="mono">${i.date}</td>
+      <td>${i.interviewer}</td>
+      <td><span class="pill ${outcomePillClass(i.outcome)}">${i.outcome}</span></td>
+      <td style="max-width:220px; white-space:normal; color:var(--text-dim); font-size:12.5px;">${i.feedback || "—"}</td>
+      <td>${warn}</td>
+      <td>${canEdit('interviews') ? `<button class="btn small" onclick="openInterviewModal(${interviews.indexOf(i)})">Update</button>` : `<span class="mono" style="color:var(--text-faint);">View only</span>`}</td>
+    </tr>`;
+  }).join('');
+}
+let editInterviewIndex = null;
+function openInterviewModal(index) {
+  editInterviewIndex = (typeof index === 'number') ? index : null;
+  const modalTitle = document.querySelector('#interviewBackdrop .modal-head h2');
+  const submitBtn = document.querySelector('#interviewBackdrop .modal-foot .primary');
+  if (editInterviewIndex !== null) {
+    const rec = interviews[editInterviewIndex];
+    modalTitle.textContent = "Update Interview Record";
+    submitBtn.textContent = "Save changes";
+    document.getElementById('intName').value = rec.name;
+    document.getElementById('intEmail').value = rec.email;
+    document.getElementById('intPhone').value = rec.phone;
+    document.getElementById('intPosition').value = rec.position;
+    document.getElementById('intRound').value = rec.round;
+    document.getElementById('intDate').value = rec.date;
+    document.getElementById('intInterviewer').value = rec.interviewer;
+    document.getElementById('intOutcome').value = rec.outcome;
+    document.getElementById('intFeedback').value = rec.feedback;
+  } else {
+    modalTitle.textContent = "Log Interview";
+    submitBtn.textContent = "Save interview record";
+    document.getElementById('intName').value = "";
+    document.getElementById('intEmail').value = "";
+    document.getElementById('intPhone').value = "";
+    document.getElementById('intPosition').value = "";
+    document.getElementById('intRound').value = "Screening";
+    document.getElementById('intDate').value = "";
+    document.getElementById('intInterviewer').value = "";
+    document.getElementById('intOutcome').value = "Scheduled";
+    document.getElementById('intFeedback').value = "";
+  }
+  document.getElementById('intPriorCount').textContent = "—";
+  document.getElementById('rejectWarning').innerHTML = "";
+  checkRejectionLive();
+  document.getElementById('interviewBackdrop').classList.add('open');
+}
+function checkRejectionLive() {
+  const email = document.getElementById('intEmail').value.trim();
+  const warnBox = document.getElementById('rejectWarning');
+  const priorBox = document.getElementById('intPriorCount');
+  if (!email) { priorBox.textContent = "—"; warnBox.innerHTML = ""; return; }
+  const priorRecords = interviews.filter((i, idx) => i.email.toLowerCase() === email.toLowerCase() && idx !== editInterviewIndex);
+  const priorRejections = priorRecords.filter(i => i.outcome === "Rejected").length;
+  priorBox.textContent = priorRecords.length ? `${priorRecords.length} round(s) on file` : "No prior rounds";
+  if (priorRejections >= 2) {
+    warnBox.innerHTML = `<div class="notebox crit">⚠ Warning: this candidate has been rejected ${priorRejections} times already (most recent: ${priorRecords.filter(i=>i.outcome==='Rejected').slice(-1)[0].date}). Consider flagging to the hiring manager before proceeding.</div>`;
+  } else if (priorRejections === 1) {
+    warnBox.innerHTML = `<div class="notebox info">Note: one prior rejection on file for this candidate.</div>`;
+  } else {
+    warnBox.innerHTML = "";
+  }
+}
+function submitInterview() {
+  const name = document.getElementById('intName').value.trim();
+  const email = document.getElementById('intEmail').value.trim();
+  const position = document.getElementById('intPosition').value.trim();
+  const date = document.getElementById('intDate').value;
+  if (!name || !email || !position || !date) {
+    showToast("Name, email, position and interview date are required.");
+    return;
+  }
+  const record = {
+    name, email,
+    phone: document.getElementById('intPhone').value.trim(),
+    position,
+    round: document.getElementById('intRound').value,
+    date,
+    interviewer: document.getElementById('intInterviewer').value.trim(),
+    outcome: document.getElementById('intOutcome').value,
+    feedback: document.getElementById('intFeedback').value.trim(),
+  };
+  const isUpdate = editInterviewIndex !== null;
+  if (isUpdate) {
+    record.id = interviews[editInterviewIndex].id;
+    interviews[editInterviewIndex] = record;
+    persistInterviewUpdate(record);
+  } else {
+    interviews.push(record);
+    persistInterviewInsert(record).then(row => { if (row) record.id = row.id; });
+  }
+  const totalRejections = rejectionCount(email);
+  closeModal('interviewBackdrop');
+  editInterviewIndex = null;
+  renderInterviews();
+  if (totalRejections >= 2) {
+    showToast(`${isUpdate ? "Updated" : "Saved"} — heads up: ${name} now has ${totalRejections} rejections on file.`);
+  } else {
+    showToast(`Interview record ${isUpdate ? "updated" : "saved"} for ${name}.`);
+  }
+  logActivity(`${isUpdate ? "Updated" : "Logged"} ${record.round} round for <strong>${name}</strong> — ${record.outcome}.`);
+}
+
+/* ---------------- Leave & Attendance ---------------- */
+function leaveUsed(empId, type) {
+  return leaveRequests
+    .filter(l => l.empId === empId && l.type === type && l.status !== "Rejected")
+    .reduce((sum, l) => sum + l.days, 0);
+}
+function leaveBalance(empId, type) {
+  return LEAVE_POLICY[type] - leaveUsed(empId, type);
+}
+function leaveStatusClass(s) {
+  if (s === "Approved") return "selected";
+  if (s === "Rejected") return "rejected";
+  return "pending";
+}
+function renderLeave() {
+  const totalReq = leaveRequests.length;
+  const pending = leaveRequests.filter(l => l.status === "Pending").length;
+  const approved = leaveRequests.filter(l => l.status === "Approved").length;
+  const today = new Date().toISOString().slice(0, 10);
+  const onLeaveToday = leaveRequests.filter(l => l.status === "Approved" && l.from <= today && l.to >= today).length;
+  document.getElementById('leaveTiles').innerHTML = `
+    <div class="tile accentline"><div class="num">${totalReq}</div><div class="label">Total requests on file</div></div>
+    <div class="tile warnline"><div class="num">${pending}</div><div class="label">Pending approval</div></div>
+    <div class="tile goodline"><div class="num">${approved}</div><div class="label">Approved</div></div>
+    <div class="tile"><div class="num">${onLeaveToday}</div><div class="label">On leave today</div></div>
+  `;
+  const q = (document.getElementById('leaveSearchBox').value || "").trim().toLowerCase();
+  const statusF = document.getElementById('leaveFilterStatus').value;
+  let rows = leaveRequests.map((l, idx) => ({ ...l, idx, emp: employees.find(e => e.id === l.empId) })).filter(l => {
+    const matchesQ = !q || (l.emp && l.emp.name.toLowerCase().includes(q)) || l.empId.toLowerCase().includes(q);
+    const matchesStatus = !statusF || l.status === statusF;
+    return matchesQ && matchesStatus;
+  });
+  document.getElementById('leaveResultCount').innerHTML = `<span class="tag">${rows.length} of ${leaveRequests.length} shown</span>`;
+  document.getElementById('leaveTableBody').innerHTML = rows.map(l => `
+    <tr>
+      <td class="mono">${l.empId}</td>
+      <td><strong>${l.emp ? l.emp.name : "Unknown"}</strong></td>
+      <td>${l.type}</td>
+      <td class="mono">${l.from}</td>
+      <td class="mono">${l.to}</td>
+      <td class="mono">${l.days}</td>
+      <td style="max-width:200px; white-space:normal; color:var(--text-dim); font-size:12.5px;">${l.reason}</td>
+      <td><span class="pill ${leaveStatusClass(l.status)}">${l.status}</span></td>
+      <td class="mono">${leaveBalance(l.empId, l.type)} / ${LEAVE_POLICY[l.type]}</td>
+      <td>
+        <div class="rowmenu">
+          ${l.status === "Pending" && canEdit('leave') ? `<button class="btn small" onclick="setLeaveStatus(${l.idx}, 'Approved')">Approve</button><button class="btn small" onclick="setLeaveStatus(${l.idx}, 'Rejected')">Reject</button>` : `<span class="mono" style="color:var(--text-faint);">${l.status === "Pending" ? "View only" : "—"}</span>`}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+function setLeaveStatus(idx, status) {
+  const l = leaveRequests[idx];
+  if (!l) return;
+  l.status = status;
+  const emp = employees.find(e => e.id === l.empId);
+  logActivity(`Leave request for <strong>${emp ? emp.name : l.empId}</strong> (${l.type}, ${l.days}d) ${status.toLowerCase()}.`);
+  if (l.id) persistLeaveStatus(l.id, status);
+  renderLeave();
+  showToast(`Leave request ${status.toLowerCase()}.`);
+}
+function openLeaveModal() {
+  const sel = document.getElementById('leaveEmp');
+  sel.innerHTML = employees.map(e => `<option value="${e.id}">${e.name} (${e.id})</option>`).join('');
+  document.getElementById('leaveType').value = "Casual";
+  document.getElementById('leaveFrom').value = "";
+  document.getElementById('leaveTo').value = "";
+  document.getElementById('leaveDaysBox').textContent = "—";
+  document.getElementById('leaveReason').value = "";
+  document.getElementById('leaveWarning').innerHTML = "";
+  refreshLeaveBalance();
+  document.getElementById('leaveBackdrop').classList.add('open');
+}
+function refreshLeaveBalance() {
+  const empId = document.getElementById('leaveEmp').value;
+  const type = document.getElementById('leaveType').value;
+  const bal = leaveBalance(empId, type);
+  document.getElementById('leaveBalanceBox').textContent = `${bal} / ${LEAVE_POLICY[type]} days left`;
+  computeLeaveDays();
+}
+function computeLeaveDays() {
+  const from = document.getElementById('leaveFrom').value;
+  const to = document.getElementById('leaveTo').value;
+  const warnBox = document.getElementById('leaveWarning');
+  if (!from || !to) { document.getElementById('leaveDaysBox').textContent = "—"; warnBox.innerHTML = ""; return; }
+  const d1 = new Date(from), d2 = new Date(to);
+  const days = Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
+  document.getElementById('leaveDaysBox').textContent = `${days} day(s)`;
+  const empId = document.getElementById('leaveEmp').value;
+  const type = document.getElementById('leaveType').value;
+  const bal = leaveBalance(empId, type);
+  warnBox.innerHTML = days > bal
+    ? `<div class="notebox crit">⚠ This request (${days}d) exceeds the remaining ${type} balance of ${bal}d.</div>`
+    : "";
+}
+function submitLeave() {
+  const empId = document.getElementById('leaveEmp').value;
+  const type = document.getElementById('leaveType').value;
+  const from = document.getElementById('leaveFrom').value;
+  const to = document.getElementById('leaveTo').value;
+  const reason = document.getElementById('leaveReason').value.trim();
+  if (!from || !to || !reason) { showToast("From date, to date and reason are required."); return; }
+  const d1 = new Date(from), d2 = new Date(to);
+  const days = Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
+  const newLeave = { empId, type, from, to, days, reason, status: "Pending" };
+  leaveRequests.push(newLeave);
+  const emp = employees.find(e => e.id === empId);
+  logActivity(`<strong>${emp ? emp.name : empId}</strong> applied for ${days}d ${type} leave.`);
+  closeModal('leaveBackdrop');
+  renderLeave();
+  showToast(`Leave request submitted for ${emp ? emp.name : empId}.`);
+  persistLeaveInsert(newLeave).then(row => { if (row) newLeave.id = row.id; });
+}
+
+/* ---------------- Onboarding ---------------- */
+function onboardStatus(ob) {
+  const doneCount = ob.tasks.filter(t => t.done).length;
+  if (doneCount === ob.tasks.length) return "Completed";
+  const start = new Date(ob.startDate);
+  if (start < new Date() && doneCount < ob.tasks.length) return "Overdue";
+  return "In Progress";
+}
+function onboardStatusClass(s) {
+  if (s === "Completed") return "selected";
+  if (s === "Overdue") return "rejected";
+  return "pending";
+}
+function renderOnboarding() {
+  const total = onboardingList.length;
+  const completed = onboardingList.filter(o => onboardStatus(o) === "Completed").length;
+  const overdue = onboardingList.filter(o => onboardStatus(o) === "Overdue").length;
+  const inProgress = total - completed - overdue;
+  document.getElementById('onboardTiles').innerHTML = `
+    <div class="tile accentline"><div class="num">${total}</div><div class="label">New joiners tracked</div></div>
+    <div class="tile"><div class="num">${inProgress}</div><div class="label">In progress</div></div>
+    <div class="tile goodline"><div class="num">${completed}</div><div class="label">Completed</div></div>
+    <div class="tile critline"><div class="num">${overdue}</div><div class="label">Overdue</div></div>
+  `;
+  const q = (document.getElementById('onboardSearchBox').value || "").trim().toLowerCase();
+  const statusF = document.getElementById('onboardFilterStatus').value;
+  let rows = onboardingList.map((o, idx) => ({ ...o, idx, status: onboardStatus(o) })).filter(o => {
+    const matchesQ = !q || [o.name, o.position, o.org].some(v => v.toLowerCase().includes(q));
+    const matchesStatus = !statusF || o.status === statusF;
+    return matchesQ && matchesStatus;
+  });
+  document.getElementById('onboardResultCount').innerHTML = `<span class="tag">${rows.length} of ${onboardingList.length} shown</span>`;
+  document.getElementById('onboardTableBody').innerHTML = rows.map(o => {
+    const doneCount = o.tasks.filter(t => t.done).length;
+    return `
+    <tr>
+      <td><strong>${o.name}</strong></td>
+      <td>${o.position}</td>
+      <td>${o.org}</td>
+      <td class="mono">${o.startDate}</td>
+      <td class="mono">${doneCount} / ${o.tasks.length}</td>
+      <td><span class="pill ${onboardStatusClass(o.status)}">${o.status}</span></td>
+      <td><button class="btn small" onclick="openOnboardModal(${o.idx})">${canEdit('onboarding') ? 'Open checklist' : 'View checklist'}</button></td>
+    </tr>`;
+  }).join('');
+}
+let editOnboardIndex = null;
+let tempObTasks = [];
+function toggleObTask(i) {
+  tempObTasks[i].done = !tempObTasks[i].done;
+  renderChecklistBoxFromTemp();
+}
+function renderChecklistBoxFromTemp() {
+  document.getElementById('obChecklist').innerHTML = tempObTasks.map((t, i) => `
+    <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+      <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleObTask(${i})" style="width:15px; height:15px; accent-color: var(--accent);">
+      <span style="${t.done ? 'color:var(--text-faint); text-decoration:line-through;' : ''}">${t.label}</span>
+    </label>
+  `).join('');
+}
+function openOnboardModal(idx) {
+  editOnboardIndex = (typeof idx === 'number') ? idx : null;
+  const title = document.getElementById('onboardModalTitle');
+  if (editOnboardIndex !== null) {
+    const o = onboardingList[editOnboardIndex];
+    title.textContent = "Onboarding Checklist";
+    document.getElementById('obName').value = o.name;
+    document.getElementById('obPosition').value = o.position;
+    document.getElementById('obOrg').value = o.org;
+    document.getElementById('obStartDate').value = o.startDate;
+    tempObTasks = o.tasks.map(t => ({ ...t }));
+  } else {
+    title.textContent = "New Joiner Onboarding";
+    document.getElementById('obName').value = "";
+    document.getElementById('obPosition').value = "";
+    document.getElementById('obOrg').value = "";
+    document.getElementById('obStartDate').value = "";
+    tempObTasks = ONBOARD_CHECKLIST_TEMPLATE.map(label => ({ label, done: false }));
+  }
+  renderChecklistBoxFromTemp();
+  const readOnly = !canEdit('onboarding');
+  document.getElementById('obName').disabled = readOnly;
+  document.getElementById('obPosition').disabled = readOnly;
+  document.getElementById('obOrg').disabled = readOnly;
+  document.getElementById('obStartDate').disabled = readOnly;
+  document.getElementById('onboardSaveBtn').style.display = readOnly ? 'none' : '';
+  document.querySelectorAll('#obChecklist input[type=checkbox]').forEach(cb => cb.disabled = readOnly);
+  document.getElementById('onboardBackdrop').classList.add('open');
+}
+function saveOnboarding() {
+  const name = document.getElementById('obName').value.trim();
+  const position = document.getElementById('obPosition').value.trim();
+  const org = document.getElementById('obOrg').value.trim();
+  const startDate = document.getElementById('obStartDate').value;
+  if (!name || !position || !org || !startDate) { showToast("Name, position, org unit and start date are required."); return; }
+  const record = { name, position, org, startDate, tasks: tempObTasks.map(t => ({ ...t })) };
+  const isUpdate = editOnboardIndex !== null;
+  if (isUpdate) { record.id = onboardingList[editOnboardIndex].id; onboardingList[editOnboardIndex] = record; } else { onboardingList.push(record); }
+  closeModal('onboardBackdrop');
+  renderOnboarding();
+  const status = onboardStatus(record);
+  logActivity(`Onboarding ${isUpdate ? "updated" : "started"} for <strong>${name}</strong> — ${status}.`);
+  showToast(`Onboarding saved for ${name}.`);
+  persistOnboarding(record);
+}
+
+/* ---------------- Job Openings ---------------- */
+function openingStatusClass(s) {
+  if (s === "Open") return "selected";
+  if (s === "On Hold") return "pending";
+  return "rejected";
+}
+function appCountForPosition(position) {
+  return applications.filter(a => a.position.trim().toLowerCase() === position.trim().toLowerCase()).length;
+}
+function renderOpenings() {
+  const totalOpenings = openings.length;
+  const openCount = openings.filter(o => o.status === "Open").length;
+  const totalVacancies = openings.filter(o => o.status === "Open").reduce((sum, o) => sum + Number(o.vacancies || 0), 0);
+  const onHold = openings.filter(o => o.status === "On Hold").length;
+  document.getElementById('openingTiles').innerHTML = `
+    <div class="tile accentline"><div class="num">${totalOpenings}</div><div class="label">Total positions on file</div></div>
+    <div class="tile goodline"><div class="num">${openCount}</div><div class="label">Open positions</div></div>
+    <div class="tile"><div class="num">${totalVacancies}</div><div class="label">Total vacancies (open)</div></div>
+    <div class="tile warnline"><div class="num">${onHold}</div><div class="label">On hold</div></div>
+  `;
+  const q = (document.getElementById('openSearchBox').value || "").trim().toLowerCase();
+  const statusF = document.getElementById('openFilterStatus').value;
+  let rows = openings.map((o, idx) => ({ ...o, idx })).filter(o => {
+    const matchesQ = !q || [o.position, o.org].some(v => v.toLowerCase().includes(q));
+    const matchesStatus = !statusF || o.status === statusF;
+    return matchesQ && matchesStatus;
+  });
+  document.getElementById('openResultCount').innerHTML = `<span class="tag">${rows.length} of ${openings.length} shown</span>`;
+  document.getElementById('openingTableBody').innerHTML = rows.map(o => `
+    <tr>
+      <td><strong>${o.position}</strong></td>
+      <td>${o.org}</td>
+      <td class="mono">${o.vacancies}</td>
+      <td class="mono">${appCountForPosition(o.position)}</td>
+      <td class="mono">${o.posted}</td>
+      <td><span class="pill ${openingStatusClass(o.status)}">${o.status}</span></td>
+      <td>${canEdit('openings') ? `<button class="btn small" onclick="openOpeningModal(${o.idx})">Edit</button>` : `<span class="mono" style="color:var(--text-faint);">View only</span>`}</td>
+    </tr>
+  `).join('');
+}
+let editOpeningIndex = null;
+function openOpeningModal(idx) {
+  editOpeningIndex = (typeof idx === 'number') ? idx : null;
+  const title = document.getElementById('openingModalTitle');
+  if (editOpeningIndex !== null) {
+    const o = openings[editOpeningIndex];
+    title.textContent = "Edit Job Opening";
+    document.getElementById('openPosition').value = o.position;
+    document.getElementById('openOrg').value = o.org;
+    document.getElementById('openVacancies').value = o.vacancies;
+    document.getElementById('openStatus').value = o.status;
+    document.getElementById('openPosted').value = o.posted;
+    document.getElementById('openNotes').value = o.notes || "";
+  } else {
+    title.textContent = "New Job Opening";
+    document.getElementById('openPosition').value = "";
+    document.getElementById('openOrg').value = "";
+    document.getElementById('openVacancies').value = 1;
+    document.getElementById('openStatus').value = "Open";
+    document.getElementById('openPosted').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('openNotes').value = "";
+  }
+  document.getElementById('openingBackdrop').classList.add('open');
+}
+function saveOpening() {
+  const position = document.getElementById('openPosition').value.trim();
+  const org = document.getElementById('openOrg').value.trim();
+  if (!position || !org) { showToast("Position title and org unit are required."); return; }
+  const record = {
+    position, org,
+    vacancies: Number(document.getElementById('openVacancies').value) || 1,
+    status: document.getElementById('openStatus').value,
+    posted: document.getElementById('openPosted').value || new Date().toISOString().slice(0, 10),
+    notes: document.getElementById('openNotes').value.trim(),
+  };
+  const isUpdate = editOpeningIndex !== null;
+  if (isUpdate) { record.id = openings[editOpeningIndex].id; openings[editOpeningIndex] = record; } else { openings.push(record); }
+  closeModal('openingBackdrop');
+  renderOpenings();
+  logActivity(`${isUpdate ? "Updated" : "Opened"} position <strong>${position}</strong> (${record.vacancies} vacancy/ies, ${org}).`);
+  showToast(`Opening ${isUpdate ? "updated" : "saved"}.`);
+  persistOpening(record);
+}
+
+/* ---------------- Walk-in queue ---------------- */
+let walkinQueue = [];
+let walkinIndex = 0;
+
+function loadSampleWalkin() {
+  document.getElementById('walkinPaste').value =
+`Rahul Sinha, rahul.sinha88@gmail.com, +91 98201 55443
+Megha Iyer, megha.iyer@gmail.com, +91 99102 33445
+Devansh Oza, devansh.oza@gmail.com, +91 97123 88990
+Ishaan Kapoor, ishaan.kapoor@gmail.com, +91 90122 33445
+Riya Chopra, riya.chopra@gmail.com, +91 93456 77889`;
+}
+
+function loadWalkinQueue() {
+  const raw = document.getElementById('walkinPaste').value.trim();
+  if (!raw) { showToast("Paste at least one candidate line first."); return; }
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  walkinQueue = lines.map(line => {
+    const parts = line.split(',').map(p => p.trim());
+    return { name: parts[0] || "Unnamed candidate", email: parts[1] || "", phone: parts[2] || "", status: "pending" };
+  });
+  walkinIndex = 0;
+  document.getElementById('walkinLoadCard').style.display = 'none';
+  document.getElementById('walkinServing').style.display = '';
+  showToast(`Queue loaded — ${walkinQueue.length} candidate(s).`);
+  showWalkinCandidate();
+}
+
+function resetWalkinQueue() {
+  walkinQueue = [];
+  walkinIndex = 0;
+  document.getElementById('walkinPaste').value = "";
+  document.getElementById('walkinLoadCard').style.display = '';
+  document.getElementById('walkinServing').style.display = 'none';
+  renderWalkinTiles();
+}
+
+function renderWalkinTiles() {
+  const total = walkinQueue.length;
+  const current = total ? walkinIndex + 1 : 0;
+  const remaining = total ? total - walkinIndex - 1 : 0;
+  const done = walkinQueue.filter(c => c.status === "done").length;
+  const attended = walkinQueue.filter(c => c.attended).length;
+  const interviewed = walkinQueue.filter(c => c.interviewed).length;
+  document.getElementById('walkinTiles').innerHTML = `
+    <div class="tile accentline"><div class="num">${total}</div><div class="label">Loaded in queue</div></div>
+    <div class="tile"><div class="num">${attended}</div><div class="label">Attended (arrived)</div></div>
+    <div class="tile goodline"><div class="num">${interviewed}</div><div class="label">Went for interview</div></div>
+    <div class="tile warnline"><div class="num">${remaining}</div><div class="label">Remaining</div></div>
+  `;
+}
+
+function showWalkinCandidate() {
+  if (!walkinQueue.length) return;
+  const c = walkinQueue[walkinIndex];
+  renderWalkinTiles();
+  document.getElementById('walkinPosition').textContent = `${walkinIndex + 1} of ${walkinQueue.length}`;
+  document.getElementById('walkinNameText').textContent = c.name;
+  document.getElementById('walkinStatusPill').innerHTML = walkinStatusPillsHtml(c);
+  document.getElementById('walkinContact').textContent = `${c.email || "No email given"} · ${c.phone || "No phone given"}`;
+  document.getElementById('walkinAttended').checked = !!c.attended;
+  document.getElementById('walkinInterviewed').checked = !!c.interviewed;
+
+  const email = (c.email || "").toLowerCase();
+  const pastInterviews = email ? interviews.filter(i => i.email.toLowerCase() === email) : [];
+  const matchedEmp = email ? employees.find(e => e.officeEmail.toLowerCase() === email || e.personalEmail.toLowerCase() === email) : null;
+  const pastApps = matchedEmp ? applications.filter(a => a.empId === matchedEmp.id) : [];
+  const priorRejections = pastInterviews.filter(i => i.outcome === "Rejected").length;
+
+  let html = "";
+  if (!email) {
+    html += `<div class="notebox info">No email given for this entry — history lookup needs an email to match records.</div>`;
+  }
+  if (matchedEmp) {
+    html += `<div class="notebox info">Matches an existing employee record: ${matchedEmp.id} — ${matchedEmp.title}, ${matchedEmp.org}.</div>`;
+  }
+  html += `<div style="margin-top:10px;"><strong style="font-size:12.5px; color:var(--text-dim);">Interview history (${pastInterviews.length})</strong>
+    <div class="taglist" style="margin-top:6px;">${
+      pastInterviews.length
+        ? pastInterviews.map(i => `<span class="tag">${i.position} · ${i.round} · ${i.date} · ${i.outcome}</span>`).join('')
+        : `<span class="tag">No prior interview rounds on file</span>`
+    }</div></div>`;
+  html += `<div style="margin-top:10px;"><strong style="font-size:12.5px; color:var(--text-dim);">Internal applications (${pastApps.length})</strong>
+    <div class="taglist" style="margin-top:6px;">${
+      pastApps.length
+        ? pastApps.map(a => `<span class="tag">${a.position} · ${a.date} · ${a.result}</span>`).join('')
+        : `<span class="tag">No internal applications on file</span>`
+    }</div></div>`;
+  if (priorRejections >= 2) {
+    html += `<div class="notebox crit" style="margin-top:10px;">⚠ Warning: this candidate already has ${priorRejections} rejections on file.</div>`;
+  } else if (priorRejections === 1) {
+    html += `<div class="notebox info" style="margin-top:10px;">Note: one prior rejection on file for this candidate.</div>`;
+  }
+  document.getElementById('walkinHistoryBox').innerHTML = html;
+
+  document.getElementById('wkPosition').value = pastInterviews.length ? pastInterviews[pastInterviews.length - 1].position : "";
+  document.getElementById('wkRound').value = "Screening";
+  document.getElementById('wkInterviewer').value = "";
+  document.getElementById('wkOutcome').value = "Scheduled";
+  document.getElementById('wkFeedback').value = "";
+  walkinCheckWarning();
+  document.getElementById('walkinSaveActions').style.display = canEdit('walkin') ? '' : 'none';
+  document.getElementById('walkinAttended').disabled = !canEdit('walkin');
+  document.getElementById('walkinInterviewed').disabled = !canEdit('walkin');
+}
+
+function walkinCheckWarning() {
+  const c = walkinQueue[walkinIndex];
+  const box = document.getElementById('wkWarning');
+  if (!c) { box.innerHTML = ""; return; }
+  const email = (c.email || "").toLowerCase();
+  const rejections = email ? interviews.filter(i => i.email.toLowerCase() === email && i.outcome === "Rejected").length : 0;
+  box.innerHTML = rejections >= 2
+    ? `<div class="notebox crit">⚠ ${rejections} rejections already on file for this candidate.</div>`
+    : "";
+}
+
+function walkinStatusPillsHtml(c) {
+  return (c.status === "done" ? `<span class="pill selected">✓ Round logged</span>` : `<span class="pill pending">Not yet seen</span>`) +
+    (c.attended ? ` <span class="pill transfer">✓ Attended</span>` : ` <span class="pill rejected">Not arrived</span>`) +
+    (c.interviewed ? ` <span class="pill selected">✓ Interviewed</span>` : ``);
+}
+function walkinToggleAttended() {
+  const c = walkinQueue[walkinIndex];
+  if (!c) return;
+  c.attended = document.getElementById('walkinAttended').checked;
+  document.getElementById('walkinStatusPill').innerHTML = walkinStatusPillsHtml(c);
+  renderWalkinTiles();
+  showToast(c.attended ? `${c.name} marked as arrived.` : `${c.name} unmarked.`);
+}
+function walkinToggleInterviewed() {
+  const c = walkinQueue[walkinIndex];
+  if (!c) return;
+  c.interviewed = document.getElementById('walkinInterviewed').checked;
+  if (c.interviewed && !c.attended) {
+    c.attended = true;
+    document.getElementById('walkinAttended').checked = true;
+  }
+  document.getElementById('walkinStatusPill').innerHTML = walkinStatusPillsHtml(c);
+  renderWalkinTiles();
+  showToast(c.interviewed ? `${c.name} marked as went for interview.` : `${c.name} unmarked.`);
+}
+
+function walkinPrev() {
+  if (walkinIndex > 0) { walkinIndex--; showWalkinCandidate(); }
+}
+function walkinNext() {
+  if (walkinIndex < walkinQueue.length - 1) { walkinIndex++; showWalkinCandidate(); }
+  else { showToast("That's the last candidate in the queue."); }
+}
+function walkinSkipNoSave() { walkinNext(); }
+
+function walkinSaveAndNext() {
+  const c = walkinQueue[walkinIndex];
+  if (!c) return;
+  const position = document.getElementById('wkPosition').value.trim();
+  if (!c.email || !position) {
+    showToast("Need an email on file and a position to save a record.");
+    return;
+  }
+  const wkRecord = {
+    name: c.name, email: c.email, phone: c.phone, position,
+    round: document.getElementById('wkRound').value,
+    date: new Date().toISOString().slice(0, 10),
+    interviewer: document.getElementById('wkInterviewer').value.trim(),
+    outcome: document.getElementById('wkOutcome').value,
+    feedback: document.getElementById('wkFeedback').value.trim(),
+  };
+  interviews.push(wkRecord);
+  persistInterviewInsert(wkRecord).then(row => { if (row) wkRecord.id = row.id; });
+  c.status = "done";
+  showToast(`Saved record for ${c.name} — marked as round logged.`);
+  if (walkinIndex < walkinQueue.length - 1) {
+    walkinIndex++;
+    showWalkinCandidate();
+  } else {
+    showToast("Queue complete — last candidate saved.");
+    renderWalkinTiles();
+  }
+}
+
+/* ---------------- Applications page ---------------- */
+function appResultClass(result) {
+  if (result.startsWith("Auto-Rejected")) return "rejected";
+  if (result === "Accepted") return "selected";
+  return "pending";
+}
+function renderApplications() {
+  const total = applications.length;
+  const pending = applications.filter(a => a.result === "Pending").length;
+  const accepted = applications.filter(a => a.result === "Accepted").length;
+  const autoRejected = applications.filter(a => a.result.startsWith("Auto-Rejected")).length;
+  document.getElementById('appTiles').innerHTML = `
+    <div class="tile accentline"><div class="num">${total}</div><div class="label">Total applications</div></div>
+    <div class="tile warnline"><div class="num">${pending}</div><div class="label">Pending review</div></div>
+    <div class="tile goodline"><div class="num">${accepted}</div><div class="label">Accepted</div></div>
+    <div class="tile critline"><div class="num">${autoRejected}</div><div class="label">Auto-rejected (duplicate)</div></div>
+  `;
+  const q = (document.getElementById('appSearchBox').value || "").trim().toLowerCase();
+  const resultF = document.getElementById('appFilterResult').value;
+  let rows = applications.map(a => ({ ...a, emp: employees.find(e => e.id === a.empId) })).filter(a => {
+    const matchesQ = !q || [a.emp?.name, a.position, a.empId].some(v => (v || "").toLowerCase().includes(q));
+    const matchesResult = !resultF || (resultF === "Auto-Rejected" ? a.result.startsWith("Auto-Rejected") : a.result === resultF);
+    return matchesQ && matchesResult;
+  });
+  document.getElementById('appResultCount').innerHTML = `<span class="tag">${rows.length} of ${applications.length} shown</span>`;
+  document.getElementById('appTableBody').innerHTML = rows.map(a => `
+    <tr>
+      <td class="mono">${a.empId}</td>
+      <td><strong>${a.emp ? a.emp.name : "Unknown"}</strong></td>
+      <td>${a.emp ? a.emp.title : "—"}</td>
+      <td>${a.position}</td>
+      <td class="mono">${a.date}</td>
+      <td style="max-width:300px; white-space:normal;"><span class="pill ${appResultClass(a.result)}">${a.result}</span></td>
+    </tr>
+  `).join('');
+}
+
+
+
+/* ---------------- init ---------------- */
+function renderAll() {
+  populateOrgFilter();
+  renderTiles();
+  renderTable();
+  renderWalkinTiles();
+  renderHome();
+  renderLeave();
+  renderOnboarding();
+  applyRoleNav();
+}
+checkExistingSession();
+</script>
+</body>
+</html>
