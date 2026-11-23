@@ -1,11 +1,12 @@
 // src/lib/supabase/server.ts
 // Server-side Supabase client (for use in Server Components, Route Handlers,
 // and middleware) that reads/writes the session from/to cookies.
+// Next.js 14's cookies() is synchronous — do NOT await it (that's a Next 15 thing).
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-export async function createClient() {
-  const cookieStore = await cookies();
+export function createClient() {
+  const cookieStore = cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
