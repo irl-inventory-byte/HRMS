@@ -1,9 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserAndRole } from "@/lib/current-user";
 import { JobOpening, JobApplication } from "@/types/hrms";
-import { submitApplication, createJobOpening } from "./actions";
+import { submitApplication, createJobOpening, closeJobOpening, deleteJobOpening } from "./actions";
 
 export default async function JobsPage() {
   const supabase = createClient();
+  const { role } = await getCurrentUserAndRole();
+  const isAdmin = role === "admin";
+
   const { data: openings } = await supabase
     .from("job_openings")
     .select("*")
@@ -21,14 +25,46 @@ export default async function JobsPage() {
       <div className="card">
         <h3>Open positions ({(openings ?? []).filter(o => o.status === "open").length})</h3>
         <table>
-          <thead><tr><th>Title</th><th>Org Unit</th><th>Vacancies</th><th>Status</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Title</th><th>Org Unit</th><th>Vacancies</th><th>Status</th>
+              {isAdmin && <th>Actions</th>}
+            </tr>
+          </thead>
           <tbody>
             {(openings ?? []).map((o) => (
               <tr key={o.id}>
                 <td>{o.title}</td><td>{o.org_unit}</td><td>{o.vacancies}</td>
                 <td><span className="badge">{o.status}</span></td>
+                {isAdmin && (
+                  <td>
+                    <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                      {o.status !== "closed" && (
+                        <form action={closeJobOpening} style={{ margin: 0 }}>
+                          <input type="hidden" name="id" value={o.id} />
+                          <button type="submit">Close</button>
+                        </form>
+                      )}
+                      <form
+                        action={deleteJobOpening}
+                        style={{ margin: 0 }}
+                      >
+                        <input type="hidden" name="id" value={o.id} />
+                        <button
+                          type="submit"
+                          style={{ background: "var(--crit-bg)", color: "var(--crit)", border: "1px solid var(--crit)" }}
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
+            {(!openings || openings.length === 0) && (
+              <tr><td colSpan={isAdmin ? 5 : 4}>No openings yet.</td></tr>
+            )}
           </tbody>
         </table>
         <h4>Post new opening (admin/HR)</h4>
