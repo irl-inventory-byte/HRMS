@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 
 // If your project already has a shared Supabase client (e.g. in src/lib/supabase.ts
@@ -11,11 +12,35 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// Where to send someone once they're actually signed in — change this to
+// wherever your real dashboard/home page lives (e.g. "/dashboard").
+const SIGNED_IN_REDIRECT = "/";
+
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    // Covers two cases: (1) someone who already has a session and lands on
+    // /login directly, and (2) the moment right after Google redirects back
+    // here with tokens in the URL — supabase-js reads those automatically,
+    // fires this event, and we navigate away once it does.
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        router.replace(SIGNED_IN_REDIRECT);
+      } else {
+        setCheckingSession(false);
+      }
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) router.replace(SIGNED_IN_REDIRECT);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, [router]);
 
   async function handleSignIn() {
     setError("");
@@ -34,6 +59,16 @@ export default function LoginPage() {
       options: { redirectTo: typeof window !== "undefined" ? window.location.origin : undefined },
     });
     if (error) setError(error.message);
+  }
+
+  if (checkingSession) {
+    // Avoids flashing the login form for a split second while we check for
+    // an existing session (or process the tokens Google just redirected back).
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a0a0f", color: "#9aa0ad" }}>
+        Checking session…
+      </div>
+    );
   }
 
   return (
