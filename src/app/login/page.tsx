@@ -13,17 +13,14 @@ const SIGNED_IN_REDIRECT = "/";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
     // Covers two cases: (1) someone who already has a session and lands on
     // /login directly, and (2) the moment right after Google redirects back
-    // here with tokens in the URL — supabase-js reads those automatically,
-    // fires this event, and we navigate away once it does.
+    // here — the /auth/callback route has already exchanged the code for a
+    // session by then, so this just notices it and navigates away.
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
         router.replace(SIGNED_IN_REDIRECT);
@@ -36,16 +33,6 @@ export default function LoginPage() {
     });
     return () => listener.subscription.unsubscribe();
   }, [router]);
-
-  async function handleSignIn() {
-    setError("");
-    if (!email || !password) { setError("Please fill out email and password."); return; }
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) setError(error.message);
-    // On success, Supabase sets the session; redirect/reload as your app expects.
-  }
 
   async function handleGoogleSignIn() {
     setError("");
@@ -80,7 +67,7 @@ export default function LoginPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 420 }}>
-        <h1 style={{ color: "#fff", fontWeight: 800, fontSize: 36, marginBottom: 24 }}>
+        <h1 style={{ color: "#fff", fontWeight: 800, fontSize: 36, marginBottom: 24, textAlign: "center" }}>
           HRMS Login
         </h1>
 
@@ -92,73 +79,9 @@ export default function LoginPage() {
             padding: 28,
           }}
         >
-          <label style={{ color: "#9aa0ad", fontSize: 14, display: "block", marginBottom: 6 }}>
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              marginBottom: 18,
-              borderRadius: 8,
-              border: "1px solid #2a2a35",
-              background: "#0e0e14",
-              color: "#fff",
-              boxSizing: "border-box",
-            }}
-          />
-
-          <label style={{ color: "#9aa0ad", fontSize: 14, display: "block", marginBottom: 6 }}>
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              marginBottom: 18,
-              borderRadius: 8,
-              border: "1px solid #2a2a35",
-              background: "#0e0e14",
-              color: "#fff",
-              boxSizing: "border-box",
-            }}
-          />
-
           {error && (
             <div style={{ color: "#ff6b6b", fontSize: 13, marginBottom: 12 }}>{error}</div>
           )}
-
-          <div style={{ marginBottom: 16 }}>
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handleSignIn}
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: 8,
-                border: "none",
-                background: "#6c8cf5",
-                color: "#fff",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Sign in
-            </button>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0" }}>
-            <div style={{ flex: 1, height: 1, background: "#2a2a35" }} />
-            <span style={{ color: "#9aa0ad", fontSize: 13 }}>or</span>
-            <div style={{ flex: 1, height: 1, background: "#2a2a35" }} />
-          </div>
 
           <button
             type="button"
@@ -169,12 +92,13 @@ export default function LoginPage() {
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
-              padding: "10px",
+              padding: "12px",
               borderRadius: 8,
               border: "1px solid #2a2a35",
               background: "transparent",
               color: "#fff",
               cursor: "pointer",
+              fontSize: 15,
             }}
           >
             <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -186,11 +110,9 @@ export default function LoginPage() {
             Sign in with Google
           </button>
 
-          <p style={{ color: "#6b7280", fontSize: 12, marginTop: 16 }}>
+          <p style={{ color: "#6b7280", fontSize: 12, marginTop: 16, textAlign: "center" }}>
             Accounts are created by an admin, or automatically on first Google
-            sign-in — accounts signing in with a @gmail.com address default to
-            the Candidate role; everyone else defaults to Employee. An admin
-            promotes roles from the Access Control page.
+            sign-in. An admin promotes roles from the Access Control page.
           </p>
         </div>
       </div>
