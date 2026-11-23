@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "HRMS",
+  title: "ONDECK",
   description: "HR Management System",
 };
 
