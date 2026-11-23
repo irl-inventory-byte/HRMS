@@ -24,17 +24,22 @@ export default async function JobsPage() {
 
       <div className="card">
         <h3>Open positions ({(openings ?? []).filter(o => o.status === "open").length})</h3>
-        <table>
+        <table style={{ textAlign: "center" }}>
           <thead>
             <tr>
-              <th>Title</th><th>Org Unit</th><th>Vacancies</th><th>Status</th>
-              {isAdmin && <th>Actions</th>}
+              <th style={{ textAlign: "center" }}>Title</th>
+              <th style={{ textAlign: "center" }}>Org Unit</th>
+              <th style={{ textAlign: "center" }}>Vacancies</th>
+              <th style={{ textAlign: "center" }}>Status</th>
+              {isAdmin && <th style={{ textAlign: "center" }}>Actions</th>}
             </tr>
           </thead>
           <tbody>
             {(openings ?? []).map((o) => (
               <tr key={o.id}>
-                <td>{o.title}</td><td>{o.org_unit}</td><td>{o.vacancies}</td>
+                <td>{o.title}</td>
+                <td>{o.org_unit}</td>
+                <td>{o.vacancies}</td>
                 <td><span className="badge">{o.status}</span></td>
                 {isAdmin && (
                   <td>
@@ -45,10 +50,7 @@ export default async function JobsPage() {
                           <button type="submit">Close</button>
                         </form>
                       )}
-                      <form
-                        action={deleteJobOpening}
-                        style={{ margin: 0 }}
-                      >
+                      <form action={deleteJobOpening} style={{ margin: 0 }}>
                         <input type="hidden" name="id" value={o.id} />
                         <button
                           type="submit"
@@ -78,8 +80,14 @@ export default async function JobsPage() {
 
       <div className="card">
         <h3>Applications</h3>
-        <table>
-          <thead><tr><th>Candidate</th><th>Email</th><th>Status</th></tr></thead>
+        <table style={{ textAlign: "center" }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: "center" }}>Candidate</th>
+              <th style={{ textAlign: "center" }}>Email</th>
+              <th style={{ textAlign: "center" }}>Status</th>
+            </tr>
+          </thead>
           <tbody>
             {(applications ?? []).map((a) => (
               <tr key={a.id}>
@@ -92,6 +100,9 @@ export default async function JobsPage() {
                 </td>
               </tr>
             ))}
+            {(!applications || applications.length === 0) && (
+              <tr><td colSpan={3}>No applications yet.</td></tr>
+            )}
           </tbody>
         </table>
         <h4>New application</h4>
