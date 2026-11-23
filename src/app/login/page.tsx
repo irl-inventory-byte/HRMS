@@ -27,16 +27,6 @@ export default function LoginPage() {
     // On success, Supabase sets the session; redirect/reload as your app expects.
   }
 
-  async function handleSignUp() {
-    setError("");
-    if (!email || !password) { setError("Please fill out email and password."); return; }
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({ email, password });
-    setLoading(false);
-    if (error) setError(error.message);
-    else setError("Account created — check your email to confirm, then sign in.");
-  }
-
   async function handleGoogleSignIn() {
     setError("");
     const { error } = await supabase.auth.signInWithOAuth({
@@ -112,13 +102,13 @@ export default function LoginPage() {
             <div style={{ color: "#ff6b6b", fontSize: 13, marginBottom: 12 }}>{error}</div>
           )}
 
-          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+          <div style={{ marginBottom: 16 }}>
             <button
               type="button"
               disabled={loading}
               onClick={handleSignIn}
               style={{
-                flex: 1,
+                width: "100%",
                 padding: "10px",
                 borderRadius: 8,
                 border: "none",
@@ -129,23 +119,6 @@ export default function LoginPage() {
               }}
             >
               Sign in
-            </button>
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handleSignUp}
-              style={{
-                flex: 1,
-                padding: "10px",
-                borderRadius: 8,
-                border: "1px solid #2a2a35",
-                background: "transparent",
-                color: "#fff",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Create account
             </button>
           </div>
 
@@ -182,9 +155,10 @@ export default function LoginPage() {
           </button>
 
           <p style={{ color: "#6b7280", fontSize: 12, marginTop: 16 }}>
-            New accounts default to the Employee role — except accounts signing up
-            (email/password or Google) with a @gmail.com address, which default to
-            Candidate. An admin promotes roles from the Access Control page.
+            Accounts are created by an admin, or automatically on first Google
+            sign-in — accounts signing in with a @gmail.com address default to
+            the Candidate role; everyone else defaults to Employee. An admin
+            promotes roles from the Access Control page.
           </p>
         </div>
       </div>
