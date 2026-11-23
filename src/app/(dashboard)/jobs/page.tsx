@@ -67,7 +67,7 @@ export default async function JobsPage() {
             )}
           </tbody>
         </table>
-        <h4>Post new opening (admin/HR)</h4>
+        <h4>Post new opening</h4>
         <form action={createJobOpening}>
           <label>Title</label><input name="title" required />
           <label>Org unit</label><input name="org_unit" required />
