@@ -2,15 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/client";
 
-// If your project already has a shared Supabase client (e.g. in src/lib/supabase.ts
-// or src/lib/supabaseClient.ts), delete this block and instead do:
-//   import { supabase } from "@/lib/supabase";
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Cookie-based client — this is what lets middleware.ts see the session too.
+const supabase = createClient();
 
 // Where to send someone once they're actually signed in — change this to
 // wherever your real dashboard/home page lives (e.g. "/dashboard").
@@ -56,7 +51,9 @@ export default function LoginPage() {
     setError("");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: typeof window !== "undefined" ? window.location.origin : undefined },
+      options: {
+        redirectTo: typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : undefined,
+      },
     });
     if (error) setError(error.message);
   }
