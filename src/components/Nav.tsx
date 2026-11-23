@@ -1,6 +1,13 @@
 import Link from "next/link";
+import SidebarFooter from "./SidebarFooter";
 
-export default function Nav() {
+export default function Nav({
+  email,
+  role,
+}: {
+  email?: string | null;
+  role?: string | null;
+}) {
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -16,6 +23,7 @@ export default function Nav() {
         <Link className="navbtn" href="/interviews">Interviews</Link>
         <Link className="navbtn" href="/walkin">Walk-in Queue</Link>
       </div>
+      <SidebarFooter email={email ?? null} role={role ?? null} />
     </aside>
   );
 }

@@ -1,8 +1,10 @@
 import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserAndRole } from "@/lib/current-user";
 
 export default async function DashboardPage() {
   const supabase = createClient();
+  const { email, role } = await getCurrentUserAndRole();
 
   const [{ count: employeeCount }, { count: openJobs }, { count: waiting }] =
     await Promise.all([
@@ -13,7 +15,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="shell">
-      <Nav />
+      <Nav email={email} role={role} />
       <main className="main">
         <div className="wrap">
           <header className="top">

@@ -2,9 +2,11 @@ import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/server";
 import { WalkInCandidate } from "@/types/hrms";
 import { addWalkIn, advanceQueue } from "./actions";
+import { getCurrentUserAndRole } from "@/lib/current-user";
 
 export default async function WalkInPage() {
   const supabase = createClient();
+  const { email, role } = await getCurrentUserAndRole();
   const { data: queue } = await supabase
     .from("walkin_candidates")
     .select("*")
@@ -27,7 +29,7 @@ export default async function WalkInPage() {
 
   return (
     <div className="shell">
-      <Nav />
+      <Nav email={email} role={role} />
       <main className="main">
         <div className="wrap">
           <header className="top"><h1>Walk-in Interview Queue</h1></header>

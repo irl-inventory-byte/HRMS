@@ -2,9 +2,11 @@ import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/server";
 import { InterviewEntry, JobApplication } from "@/types/hrms";
 import { recordInterview } from "./actions";
+import { getCurrentUserAndRole } from "@/lib/current-user";
 
 export default async function InterviewsPage() {
   const supabase = createClient();
+  const { email, role } = await getCurrentUserAndRole();
   const { data: applications } = await supabase
     .from("job_applications")
     .select("*") as { data: JobApplication[] | null };
@@ -23,7 +25,7 @@ export default async function InterviewsPage() {
 
   return (
     <div className="shell">
-      <Nav />
+      <Nav email={email} role={role} />
       <main className="main">
         <div className="wrap">
           <header className="top"><h1>Interview Tracking</h1></header>

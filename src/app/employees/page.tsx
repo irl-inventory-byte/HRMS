@@ -1,9 +1,11 @@
 import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/server";
 import { Employee } from "@/types/hrms";
+import { getCurrentUserAndRole } from "@/lib/current-user";
 
 export default async function EmployeesPage() {
   const supabase = createClient();
+  const { email, role } = await getCurrentUserAndRole();
   const { data: employees } = await supabase
     .from("employees")
     .select("*")
@@ -11,7 +13,7 @@ export default async function EmployeesPage() {
 
   return (
     <div className="shell">
-      <Nav />
+      <Nav email={email} role={role} />
       <main className="main">
         <div className="wrap">
           <header className="top"><h1>Employee Directory</h1></header>

@@ -37,6 +37,16 @@
     color-scheme: dark;
   }
 }
+:root[data-theme="dark"] {
+  --bg: #1B1B22; --surface: #232329; --surface-2: #2A2A33; --border: #35353F;
+  --text: #F2F2F6; --text-dim: #A7A7B8; --text-faint: #6E6E7E;
+  --accent: #6D89F4; --accent-mid: #8CA4F7; --accent-hover: #7A98FF;
+  --accent-dim: #262A43; --accent-ink: #0B1026; --accent-2: #B38FF0; --accent-2-dim: #2B2240;
+  --good: #4ED9A0; --good-bg: #163329; --warn: #F6B84D; --warn-bg: #332810;
+  --crit: #FF8B9C; --crit-bg: #3A2024;
+  --shadow: 0 2px 10px rgba(0,0,0,0.3), 0 16px 40px rgba(0,0,0,0.4);
+  color-scheme: dark;
+}
 
 * { box-sizing: border-box; }
 body {
@@ -51,7 +61,6 @@ body {
 a { color: var(--accent); }
 h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; letter-spacing: -0.01em; }
 
-/* shell: sidebar + main */
 .shell { display: flex; min-height: 100vh; align-items: stretch; }
 .sidebar {
   width: 230px; flex: 0 0 230px;
@@ -80,6 +89,20 @@ h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; letter-spacing: -0
 .navbtn:hover { background: var(--surface-2); color: var(--text); }
 .navbtn.active { background: var(--accent); color: #fff; }
 
+.navfoot { margin-top: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.navfoot .role-box {
+  font-size: 12px; color: var(--text-dim); background: var(--surface-2);
+  border-radius: var(--radius-sm); padding: 8px 10px;
+}
+.navfoot .role-box strong { color: var(--text); }
+.navfoot-row { display: flex; gap: 8px; }
+.navfoot-row button {
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+  box-shadow: none; flex: 1;
+}
+.navfoot-row button:hover { background: var(--border); }
+.theme-toggle-btn { flex: none !important; width: 34px; padding: 0 !important; display: flex; align-items: center; justify-content: center; }
+
 .main { flex: 1; min-width: 0; padding: 28px 28px 60px; }
 .wrap { max-width: 1200px; margin: 0 auto; }
 
@@ -90,7 +113,6 @@ header.top h1 {
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
-/* tiles (dashboard stat cards) */
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
 .tile {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -102,7 +124,6 @@ header.top h1 {
   .tiles { grid-template-columns: 1fr; }
 }
 
-/* cards / tables / forms */
 .card, .tablecard {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; overflow: auto;

@@ -2,9 +2,11 @@ import Nav from "@/components/Nav";
 import { createClient } from "@/lib/supabase/server";
 import { Employee } from "@/types/hrms";
 import { fileTransferForm } from "./actions";
+import { getCurrentUserAndRole } from "@/lib/current-user";
 
 export default async function TransferFormPage() {
   const supabase = createClient();
+  const { email, role } = await getCurrentUserAndRole();
   const { data: employees } = await supabase
     .from("employees")
     .select("id, emp_id, name")
@@ -12,7 +14,7 @@ export default async function TransferFormPage() {
 
   return (
     <div className="shell">
-      <Nav />
+      <Nav email={email} role={role} />
       <main className="main">
         <div className="wrap">
           <header className="top"><h1>Internal Transfer / Role Change</h1></header>
