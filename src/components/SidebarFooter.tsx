@@ -44,7 +44,7 @@ export default function SidebarFooter({
       <div className="role-box">
         Signed in as<br />
         <strong>{email ?? "—"}</strong>
-        {role && <> · {role}</>}
+        {role && <><br />{role}</>}
       </div>
       <div className="navfoot-row">
         <button type="button" onClick={toggleTheme} className="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
