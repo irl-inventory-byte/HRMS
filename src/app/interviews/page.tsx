@@ -14,7 +14,6 @@ export default async function InterviewsPage() {
     .select("*")
     .order("created_at", { ascending: false }) as { data: InterviewEntry[] | null };
 
-  // count rejections per candidate email to flag repeat rejections
   const rejectionCounts = new Map<string, number>();
   for (const i of interviews ?? []) {
     if (i.outcome === "rejected") {
@@ -23,61 +22,63 @@ export default async function InterviewsPage() {
   }
 
   return (
-    <>
+    <div className="shell">
       <Nav />
-      <div className="page">
-        <h1>Interview Tracking</h1>
+      <main className="main">
+        <div className="wrap">
+          <header className="top"><h1>Interview Tracking</h1></header>
 
-        <div className="card">
-          <table>
-            <thead><tr><th>Candidate</th><th>Round</th><th>Outcome</th><th>Feedback</th></tr></thead>
-            <tbody>
-              {(interviews ?? []).map((i) => {
-                const count = rejectionCounts.get(i.candidate_email) ?? 0;
-                return (
-                  <tr key={i.id}>
-                    <td>
-                      {i.candidate_email}
-                      {count > 1 && (
-                        <span className="badge" style={{ marginLeft: 8, color: "#ff8080" }}>
-                          rejected {count}x before
-                        </span>
-                      )}
-                    </td>
-                    <td>{i.round}</td>
-                    <td><span className="badge">{i.outcome}</span></td>
-                    <td>{i.feedback ?? "—"}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+          <div className="tablecard">
+            <table>
+              <thead><tr><th>Candidate</th><th>Round</th><th>Outcome</th><th>Feedback</th></tr></thead>
+              <tbody>
+                {(interviews ?? []).map((i) => {
+                  const count = rejectionCounts.get(i.candidate_email) ?? 0;
+                  return (
+                    <tr key={i.id}>
+                      <td>
+                        {i.candidate_email}
+                        {count > 1 && (
+                          <span className="badge" style={{ marginLeft: 8, color: "var(--crit)", background: "var(--crit-bg)" }}>
+                            rejected {count}x before
+                          </span>
+                        )}
+                      </td>
+                      <td>{i.round}</td>
+                      <td><span className="badge">{i.outcome}</span></td>
+                      <td>{i.feedback ?? "—"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-        <div className="card">
-          <h4>Record interview (interviewer/admin/HR)</h4>
-          <form action={recordInterview}>
-            <label>Application</label>
-            <select name="application_id" required>
-              {(applications ?? []).map((a) => (
-                <option key={a.id} value={a.id}>{a.candidate_name} — {a.candidate_email}</option>
-              ))}
-            </select>
-            <input type="hidden" name="candidate_email" />
-            <label>Round</label>
-            <input name="round" type="number" min={1} defaultValue={1} />
-            <label>Outcome</label>
-            <select name="outcome">
-              <option value="pending">Pending</option>
-              <option value="passed">Passed</option>
-              <option value="rejected">Rejected</option>
-            </select>
-            <label>Feedback</label>
-            <textarea name="feedback" rows={3}></textarea>
-            <button type="submit">Save</button>
-          </form>
+          <div className="card">
+            <h4>Record interview (interviewer/admin/HR)</h4>
+            <form action={recordInterview}>
+              <label>Application</label>
+              <select name="application_id" required>
+                {(applications ?? []).map((a) => (
+                  <option key={a.id} value={a.id}>{a.candidate_name} — {a.candidate_email}</option>
+                ))}
+              </select>
+              <input type="hidden" name="candidate_email" />
+              <label>Round</label>
+              <input name="round" type="number" min={1} defaultValue={1} />
+              <label>Outcome</label>
+              <select name="outcome">
+                <option value="pending">Pending</option>
+                <option value="passed">Passed</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <label>Feedback</label>
+              <textarea name="feedback" rows={3}></textarea>
+              <button type="submit">Save</button>
+            </form>
+          </div>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

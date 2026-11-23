@@ -12,16 +12,29 @@ export default async function DashboardPage() {
     ]);
 
   return (
-    <>
+    <div className="shell">
       <Nav />
-      <div className="page">
-        <h1>HRMS Dashboard</h1>
-        <div className="card">
-          <p>Active employees: <strong>{employeeCount ?? 0}</strong></p>
-          <p>Open positions: <strong>{openJobs ?? 0}</strong></p>
-          <p>Walk-in candidates waiting: <strong>{waiting ?? 0}</strong></p>
+      <main className="main">
+        <div className="wrap">
+          <header className="top">
+            <h1>Dashboard</h1>
+          </header>
+          <div className="tiles">
+            <div className="tile">
+              <div className="tile-label">Active employees</div>
+              <div className="tile-value">{employeeCount ?? 0}</div>
+            </div>
+            <div className="tile">
+              <div className="tile-label">Open positions</div>
+              <div className="tile-value">{openJobs ?? 0}</div>
+            </div>
+            <div className="tile">
+              <div className="tile-label">Walk-in candidates waiting</div>
+              <div className="tile-value">{waiting ?? 0}</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

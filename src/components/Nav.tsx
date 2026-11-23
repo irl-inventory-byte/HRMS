@@ -2,14 +2,20 @@ import Link from "next/link";
 
 export default function Nav() {
   return (
-    <nav>
-      <Link href="/">Dashboard</Link>
-      <Link href="/employees">Employees</Link>
-      <Link href="/exit">Exit Form</Link>
-      <Link href="/transfer">Transfer Form</Link>
-      <Link href="/jobs">Job Applications</Link>
-      <Link href="/interviews">Interviews</Link>
-      <Link href="/walkin">Walk-in Queue</Link>
-    </nav>
+    <aside className="sidebar">
+      <div className="brand">
+        <div className="mark">OD</div>
+        <div className="name">On<em>Deck</em></div>
+      </div>
+      <div className="navgroup">
+        <Link className="navbtn" href="/">Dashboard</Link>
+        <Link className="navbtn" href="/employees">Employee Directory</Link>
+        <Link className="navbtn" href="/exit">Exit Form</Link>
+        <Link className="navbtn" href="/transfer">Transfer Form</Link>
+        <Link className="navbtn" href="/jobs">Job Applications</Link>
+        <Link className="navbtn" href="/interviews">Interviews</Link>
+        <Link className="navbtn" href="/walkin">Walk-in Queue</Link>
+      </div>
+    </aside>
   );
 }
