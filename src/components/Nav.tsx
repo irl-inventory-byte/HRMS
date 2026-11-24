@@ -1,47 +1,59 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import SidebarFooter from "./SidebarFooter";
 
 export default function Nav({
   email,
   role,
 }: {
-  email?: string | null;
-  role?: string | null;
+  email: string | null;
+  role: string | null;
 }) {
+  const pathname = usePathname();
+
+  const linkClass = (href: string) =>
+    pathname === href ? "navbtn active" : "navbtn";
+
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="mark">OD</div>
-        <div className="name">On<em>Deck</em></div>
+        <span className="mark">H</span>
+        <span className="name">HRMS</span>
       </div>
 
-      <div className="navgroup">
-        <div className="navlabel">Overview</div>
-        <Link className="navbtn" href="/">Dashboard</Link>
-      </div>
-
-      <div className="navgroup">
-        <div className="navlabel">Workforce</div>
-        <Link className="navbtn" href="/employees">Employee Directory</Link>
-        <Link className="navbtn" href="/exit">Exit Form</Link>
-        <Link className="navbtn" href="/transfer">Transfer Form</Link>
-      </div>
-
-      <div className="navgroup">
-        <div className="navlabel">Hiring</div>
-        <Link className="navbtn" href="/jobs">Job Openings</Link>
-        <Link className="navbtn" href="/walkin">Walk-in Queue</Link>
-        <Link className="navbtn" href="/interviews">Interviews</Link>
-      </div>
-
-      {role === "admin" && (
+      <nav>
         <div className="navgroup">
-          <div className="navlabel">Administration</div>
-          <Link className="navbtn" href="/access">Access Control</Link>
+          <div className="navlabel">Overview</div>
+          <Link href="/" className={linkClass("/")}>Dashboard</Link>
         </div>
-      )}
 
-      <SidebarFooter email={email ?? null} role={role ?? null} />
+        <div className="navgroup">
+          <div className="navlabel">Workforce</div>
+          <Link href="/employees" className={linkClass("/employees")}>Employee Directory</Link>
+          <Link href="/leave" className={linkClass("/leave")}>Leave &amp; Attendance</Link>
+          <Link href="/onboarding" className={linkClass("/onboarding")}>Onboarding</Link>
+          <Link href="/exit" className={linkClass("/exit")}>Exit Form</Link>
+          <Link href="/transfer" className={linkClass("/transfer")}>Transfer / Role Change</Link>
+        </div>
+
+        <div className="navgroup">
+          <div className="navlabel">Hiring</div>
+          <Link href="/jobs" className={linkClass("/jobs")}>Job Openings</Link>
+          <Link href="/walkin" className={linkClass("/walkin")}>Walk-in Queue</Link>
+          <Link href="/interviews" className={linkClass("/interviews")}>Interviews</Link>
+        </div>
+
+        {role === "admin" && (
+          <div className="navgroup">
+            <div className="navlabel">Administration</div>
+            <Link href="/access" className={linkClass("/access")}>Access Control</Link>
+          </div>
+        )}
+      </nav>
+
+      <SidebarFooter email={email} role={role} />
     </aside>
   );
 }
