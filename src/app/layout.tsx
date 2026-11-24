@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OnDeck",
+  title: "HRMS",
   description: "HR Management System",
 };
 
