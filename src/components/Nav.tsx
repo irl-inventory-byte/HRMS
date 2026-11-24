@@ -34,9 +34,6 @@ export default function Nav({
           <Link href="/employees" className={linkClass("/employees")}>Employee Directory</Link>
           <Link href="/leave" className={linkClass("/leave")}>Leave &amp; Attendance</Link>
           <Link href="/onboarding" className={linkClass("/onboarding")}>Onboarding</Link>
-          <Link href="/exit" className={linkClass("/exit")}>Offboarding Form</Link>
-          <Link href="/transfer" className={linkClass("/transfer")}>Transfer / Role Change</Link>
-          <Link href="/people" className={linkClass("/people")}>People</Link>
         </div>
 
         <div className="navgroup">
@@ -50,6 +47,7 @@ export default function Nav({
         {role === "admin" && (
           <div className="navgroup">
             <div className="navlabel">Administration</div>
+            <Link href="/people" className={linkClass("/people")}>People</Link>
             <Link href="/access" className={linkClass("/access")}>Access Control</Link>
           </div>
         )}
