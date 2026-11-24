@@ -8,6 +8,7 @@ export type Role =
 export type EmployeeStatus = "active" | "on_leave" | "exited" | "contract_ending";
 
 export interface Employee {
+  manager: string;
   id: string;
   emp_id: string;
   name: string;
