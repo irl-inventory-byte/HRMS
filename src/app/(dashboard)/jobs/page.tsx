@@ -1,117 +1,64 @@
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserAndRole } from "@/lib/current-user";
-import { JobOpening, JobApplication } from "@/types/hrms";
-import { submitApplication, createJobOpening, closeJobOpening, deleteJobOpening } from "./actions";
+import { createJobOpening, submitApplication } from "./actions";
+import JobsTable from "./JobsTable";
 
 export default async function JobsPage() {
   const supabase = createClient();
-  const { role } = await getCurrentUserAndRole();
-  const isAdmin = role === "admin";
+  const { data: openings } = await supabase.from("job_openings").select("*").order("created_at", { ascending: false });
+  const { data: applications } = await supabase.from("job_applications").select("*").order("created_at", { ascending: false });
 
-  const { data: openings } = await supabase
-    .from("job_openings")
-    .select("*")
-    .order("created_at", { ascending: false }) as { data: JobOpening[] | null };
+  const appCountByOpening = new Map<string, number>();
+  for (const a of applications ?? []) {
+    appCountByOpening.set(a.job_opening_id, (appCountByOpening.get(a.job_opening_id) ?? 0) + 1);
+  }
 
-  const { data: applications } = await supabase
-    .from("job_applications")
-    .select("*")
-    .order("created_at", { ascending: false }) as { data: JobApplication[] | null };
+  const rows = (openings ?? []).map((o) => ({
+    ...o,
+    applicationCount: appCountByOpening.get(o.id) ?? 0,
+  }));
+
+  const total = rows.length;
+  const open = rows.filter((r) => r.status === "open").length;
+  const totalVacanciesOpen = rows.filter((r) => r.status === "open").reduce((sum, r) => sum + (r.vacancies ?? 0), 0);
+  const onHold = rows.filter((r) => r.status === "on_hold").length;
 
   return (
     <>
-      <header className="top"><h1>Job Openings &amp; Applications</h1></header>
+      <header className="top" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <h1>Job Openings</h1>
+          <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 4 }}>Every open position and how many vacancies are left on each.</p>
+        </div>
+        <details style={{ position: "relative" }}>
+          <summary style={{ listStyle: "none", cursor: "pointer", background: "linear-gradient(135deg, var(--accent-mid), var(--accent))", color: "#fff", border: "1px solid var(--accent)", borderRadius: 7, padding: "10px 16px", fontSize: 13, fontWeight: 600, display: "inline-block" }}>
+            + New opening
+          </summary>
+          <div className="card" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 320, zIndex: 10 }}>
+            <form action={createJobOpening}>
+              <label>Title</label><input name="title" required />
+              <label>Org unit</label><input name="org_unit" required />
+              <label>Vacancies</label><input name="vacancies" type="number" min={1} defaultValue={1} />
+              <button type="submit">Create opening</button>
+            </form>
+          </div>
+        </details>
+      </header>
 
-      <div className="card">
-        <h3>Open positions ({(openings ?? []).filter(o => o.status === "open").length})</h3>
-        <table style={{ textAlign: "center" }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: "center" }}>Title</th>
-              <th style={{ textAlign: "center" }}>Org Unit</th>
-              <th style={{ textAlign: "center" }}>Vacancies</th>
-              <th style={{ textAlign: "center" }}>Status</th>
-              {isAdmin && <th style={{ textAlign: "center" }}>Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {(openings ?? []).map((o) => (
-              <tr key={o.id}>
-                <td>{o.title}</td>
-                <td>{o.org_unit}</td>
-                <td>{o.vacancies}</td>
-                <td><span className="badge">{o.status}</span></td>
-                {isAdmin && (
-                  <td>
-                    <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-                      {o.status !== "closed" && (
-                        <form action={closeJobOpening} style={{ margin: 0 }}>
-                          <input type="hidden" name="id" value={o.id} />
-                          <button type="submit">Close</button>
-                        </form>
-                      )}
-                      <form action={deleteJobOpening} style={{ margin: 0 }}>
-                        <input type="hidden" name="id" value={o.id} />
-                        <button
-                          type="submit"
-                          style={{ background: "var(--crit-bg)", color: "var(--crit)", border: "1px solid var(--crit)" }}
-                        >
-                          Delete
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-            {(!openings || openings.length === 0) && (
-              <tr><td colSpan={isAdmin ? 5 : 4}>No openings yet.</td></tr>
-            )}
-          </tbody>
-        </table>
-        <h4>Post new opening</h4>
-        <form action={createJobOpening}>
-          <label>Title</label><input name="title" required />
-          <label>Org unit</label><input name="org_unit" required />
-          <label>Vacancies</label><input name="vacancies" type="number" min={1} defaultValue={1} />
-          <button type="submit">Create opening</button>
-        </form>
+      <div className="tiles">
+        <div className="tile" style={{ borderTop: "3px solid var(--accent)" }}><div className="tile-value">{total}</div><div className="tile-label">Total positions on file</div></div>
+        <div className="tile" style={{ borderTop: "3px solid #2ecc71" }}><div className="tile-value">{open}</div><div className="tile-label">Open positions</div></div>
+        <div className="tile" style={{ borderTop: "3px solid #2ecc71" }}><div className="tile-value">{totalVacanciesOpen}</div><div className="tile-label">Total vacancies (open)</div></div>
+        <div className="tile" style={{ borderTop: "3px solid #e2a33d" }}><div className="tile-value">{onHold}</div><div className="tile-label">On hold</div></div>
       </div>
 
-      <div className="card">
-        <h3>Applications</h3>
-        <table style={{ textAlign: "center" }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: "center" }}>Candidate</th>
-              <th style={{ textAlign: "center" }}>Email</th>
-              <th style={{ textAlign: "center" }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(applications ?? []).map((a) => (
-              <tr key={a.id}>
-                <td>{a.candidate_name}</td>
-                <td>{a.candidate_email}</td>
-                <td>
-                  <span className="badge">
-                    {a.status === "duplicate_rejected" ? "auto-rejected (duplicate)" : a.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-            {(!applications || applications.length === 0) && (
-              <tr><td colSpan={3}>No applications yet.</td></tr>
-            )}
-          </tbody>
-        </table>
-        <h4>New application</h4>
+      <JobsTable rows={rows} />
+
+      <div className="card" style={{ marginTop: 24 }}>
+        <h3>New job application</h3>
         <form action={submitApplication}>
           <label>Job opening</label>
           <select name="job_opening_id" required>
-            {(openings ?? []).map((o) => (
-              <option key={o.id} value={o.id}>{o.title}</option>
-            ))}
+            {(openings ?? []).map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
           </select>
           <label>Candidate name</label><input name="candidate_name" required />
           <label>Candidate email</label><input name="candidate_email" type="email" required />
@@ -119,9 +66,6 @@ export default async function JobsPage() {
           <label>Resume URL</label><input name="resume_url" />
           <button type="submit">Submit application</button>
         </form>
-        <p style={{ color: "var(--text-dim)", fontSize: 13 }}>
-          A second application from the same email to the same opening is auto-rejected.
-        </p>
       </div>
     </>
   );

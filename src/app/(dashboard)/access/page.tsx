@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndRole } from "@/lib/current-user";
-import { updateProfileRole, addAllowedUser, removeAllowedUser } from "./actions";
+import { addAllowedUser, removeAllowedUser } from "./actions";
+import AccessTable from "./AccessTable";
 
-const ROLES = ["admin", "hr", "manager", "interviewer", "employee"];
+const ROLES = ["admin", "hr", "manager", "interviewer", "employee", "candidate"];
 
 export default async function AccessControlPage() {
   const supabase = createClient();
@@ -20,15 +21,8 @@ export default async function AccessControlPage() {
     );
   }
 
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("id, email, role")
-    .order("email");
-
-  const { data: pending } = await supabase
-    .from("allowed_users")
-    .select("email, full_name, role")
-    .order("email");
+  const { data: profiles } = await supabase.from("profiles").select("id, email, role").order("email");
+  const { data: pending } = await supabase.from("allowed_users").select("email, full_name, role").order("email");
 
   return (
     <>
@@ -43,9 +37,7 @@ export default async function AccessControlPage() {
           }}>
             + Add user
           </summary>
-          <div className="card" style={{
-            position: "absolute", right: 0, top: "calc(100% + 8px)", width: 320, zIndex: 10,
-          }}>
+          <div className="card" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 320, zIndex: 10 }}>
             <form action={addAllowedUser}>
               <label>Full name</label>
               <input name="full_name" required />
@@ -53,15 +45,23 @@ export default async function AccessControlPage() {
               <input name="email" type="email" required />
               <label>Role</label>
               <select name="role" defaultValue="employee">
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
+                {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
               <button type="submit">Add user</button>
             </form>
           </div>
         </details>
       </header>
+
+      <p style={{ color: "var(--text-dim)", fontSize: 13, marginBottom: 16 }}>
+        Every account&apos;s view and edit rights are decided by the role set here —{" "}
+        <strong>Admin</strong> sees and edits everything,{" "}
+        <strong>HR</strong> handles people/hiring but not Leave approvals,{" "}
+        <strong>Manager</strong> only sees Dashboard + Leave,{" "}
+        <strong>Interviewer</strong> only sees Dashboard + Walk-in + Interviews, and{" "}
+        <strong>Employee</strong> only sees the Dashboard. Changing a role here updates Postgres
+        directly — Row Level Security enforces it even if someone tampers with the browser.
+      </p>
 
       <div className="tablecard" style={{ marginBottom: 24 }}>
         <h3 style={{ padding: "0 0 12px" }}>Pending access (not yet signed in)</h3>
@@ -88,47 +88,13 @@ export default async function AccessControlPage() {
                 </td>
               </tr>
             ))}
-            {(!pending || pending.length === 0) && (
-              <tr><td colSpan={4}>No pending invites.</td></tr>
-            )}
+            {(!pending || pending.length === 0) && <tr><td colSpan={4}>No pending invites.</td></tr>}
           </tbody>
         </table>
       </div>
 
-      <div className="tablecard">
-        <h3 style={{ padding: "0 0 12px" }}>Active accounts</h3>
-        <table style={{ textAlign: "center" }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: "center" }}>Email</th>
-              <th style={{ textAlign: "center" }}>Role</th>
-              <th style={{ textAlign: "center" }}>Change role</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(profiles ?? []).map((p) => (
-              <tr key={p.id}>
-                <td>{p.email}</td>
-                <td><span className="badge">{p.role}</span></td>
-                <td>
-                  <form action={updateProfileRole} style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "center", margin: 0 }}>
-                    <input type="hidden" name="id" value={p.id} />
-                    <select name="role" defaultValue={p.role} style={{ margin: 0, width: 140 }}>
-                      {ROLES.map((r) => (
-                        <option key={r} value={r}>{r}</option>
-                      ))}
-                    </select>
-                    <button type="submit">Update</button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-            {(!profiles || profiles.length === 0) && (
-              <tr><td colSpan={3}>No accounts yet.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <h3 style={{ padding: "0 0 4px" }}>Active accounts</h3>
+      <AccessTable profiles={profiles ?? []} />
     </>
   );
 }

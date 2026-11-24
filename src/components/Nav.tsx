@@ -36,6 +36,7 @@ export default function Nav({
           <Link href="/onboarding" className={linkClass("/onboarding")}>Onboarding</Link>
           <Link href="/exit" className={linkClass("/exit")}>Offboarding Form</Link>
           <Link href="/transfer" className={linkClass("/transfer")}>Transfer / Role Change</Link>
+          <Link href="/people" className={linkClass("/people")}>People</Link>
         </div>
 
         <div className="navgroup">
@@ -43,6 +44,7 @@ export default function Nav({
           <Link href="/jobs" className={linkClass("/jobs")}>Job Openings</Link>
           <Link href="/walkin" className={linkClass("/walkin")}>Walk-in Queue</Link>
           <Link href="/interviews" className={linkClass("/interviews")}>Interviews</Link>
+          <Link href="/applications" className={linkClass("/applications")}>Applications</Link>
         </div>
 
         {role === "admin" && (
