@@ -34,7 +34,7 @@ export default function Nav({
           <Link href="/employees" className={linkClass("/employees")}>Employee Directory</Link>
           <Link href="/leave" className={linkClass("/leave")}>Leave &amp; Attendance</Link>
           <Link href="/onboarding" className={linkClass("/onboarding")}>Onboarding</Link>
-          <Link href="/exit" className={linkClass("/exit")}>Exit Form</Link>
+          <Link href="/exit" className={linkClass("/exit")}>Offboarding Form</Link>
           <Link href="/transfer" className={linkClass("/transfer")}>Transfer / Role Change</Link>
         </div>
 
