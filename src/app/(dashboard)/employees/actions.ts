@@ -14,7 +14,6 @@ export async function addEmployee(formData: FormData) {
   const emp_id = formData.get("emp_id") as string;
   const name = formData.get("name") as string;
   const title = formData.get("title") as string;
-  const org_unit = formData.get("org_unit") as string;
   const manager = formData.get("manager") as string;
   const joining_date = formData.get("joining_date") as string;
   const status = (formData.get("status") as string) || "active";
@@ -28,7 +27,6 @@ export async function addEmployee(formData: FormData) {
     emp_id,
     name,
     title,
-    org_unit,
     manager,
     joining_date,
     status,

@@ -16,11 +16,10 @@ export async function addOnboardingEntry(formData: FormData) {
 
   const name = formData.get("name") as string;
   const position = formData.get("position") as string;
-  const org_unit = formData.get("org_unit") as string;
   const start_date = formData.get("start_date") as string;
 
   const supabase = createClient();
-  await supabase.from("onboarding_entries").insert({ name, position, org_unit, start_date });
+  await supabase.from("onboarding_entries").insert({ name, position, start_date });
 
   revalidatePath("/onboarding");
 }
@@ -31,7 +30,6 @@ export async function updateOnboardingEntry(formData: FormData) {
   const id = formData.get("id") as string;
   const name = formData.get("name") as string;
   const position = formData.get("position") as string;
-  const org_unit = formData.get("org_unit") as string;
   const start_date = formData.get("start_date") as string;
 
   const checklistUpdate: Record<string, boolean> = {};
@@ -42,7 +40,7 @@ export async function updateOnboardingEntry(formData: FormData) {
   const supabase = createClient();
   await supabase
     .from("onboarding_entries")
-    .update({ name, position, org_unit, start_date, ...checklistUpdate })
+    .update({ name, position, start_date, ...checklistUpdate })
     .eq("id", id);
 
   revalidatePath("/onboarding");

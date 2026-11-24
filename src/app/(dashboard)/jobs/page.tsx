@@ -36,7 +36,6 @@ export default async function JobsPage() {
           <div className="card" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 320, zIndex: 10 }}>
             <form action={createJobOpening}>
               <label>Title</label><input name="title" required />
-              <label>Org unit</label><input name="org_unit" required />
               <label>Vacancies</label><input name="vacancies" type="number" min={1} defaultValue={1} />
               <button type="submit">Create opening</button>
             </form>

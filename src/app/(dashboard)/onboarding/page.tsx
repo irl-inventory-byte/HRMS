@@ -55,8 +55,6 @@ export default async function OnboardingPage() {
               <input name="name" required />
               <label>Position</label>
               <input name="position" required />
-              <label>Org unit</label>
-              <input name="org_unit" required />
               <label>Start date</label>
               <input name="start_date" type="date" required />
               <button type="submit">Add joiner</button>

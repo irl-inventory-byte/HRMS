@@ -13,11 +13,10 @@ async function requireAdminOrHr() {
 export async function createJobOpening(formData: FormData) {
   await requireAdminOrHr();
   const title = formData.get("title") as string;
-  const org_unit = formData.get("org_unit") as string;
   const vacancies = Number(formData.get("vacancies")) || 1;
 
   const supabase = createClient();
-  await supabase.from("job_openings").insert({ title, org_unit, vacancies, status: "open" });
+  await supabase.from("job_openings").insert({ title, vacancies, status: "open" });
   revalidatePath("/jobs");
 }
 
@@ -25,12 +24,11 @@ export async function updateJobOpening(formData: FormData) {
   await requireAdminOrHr();
   const id = formData.get("id") as string;
   const title = formData.get("title") as string;
-  const org_unit = formData.get("org_unit") as string;
   const vacancies = Number(formData.get("vacancies")) || 1;
   const status = formData.get("status") as string;
 
   const supabase = createClient();
-  await supabase.from("job_openings").update({ title, org_unit, vacancies, status }).eq("id", id);
+  await supabase.from("job_openings").update({ title, vacancies, status }).eq("id", id);
   revalidatePath("/jobs");
 }
 

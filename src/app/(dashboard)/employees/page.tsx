@@ -49,9 +49,6 @@ export default async function EmployeesPage() {
               <label>Title</label>
               <input name="title" required />
 
-              <label>Org Unit</label>
-              <input name="org_unit" required />
-
               <label>Manager</label>
               <input name="manager" />
 

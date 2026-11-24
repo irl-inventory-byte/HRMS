@@ -8,7 +8,6 @@ type Entry = {
   id: string;
   name: string;
   position: string;
-  org_unit: string;
   start_date: string;
   status: "completed" | "overdue" | "in_progress" | "not_started";
   checked: number;
@@ -62,7 +61,7 @@ export default function OnboardingTable({ entries }: { entries: Entry[] }) {
         <table>
           <thead>
             <tr>
-              <th>Name</th><th>Position</th><th>Org Unit</th><th>Start Date</th>
+              <th>Name</th><th>Position</th><th>Start Date</th>
               <th>Checklist</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
@@ -71,7 +70,6 @@ export default function OnboardingTable({ entries }: { entries: Entry[] }) {
               <tr key={e.id}>
                 <td><strong>{e.name}</strong></td>
                 <td>{e.position}</td>
-                <td>{e.org_unit}</td>
                 <td>{e.start_date}</td>
                 <td>{e.checked} / {e.total}</td>
                 <td><span className="badge">{statusLabel(e.status)}</span></td>
@@ -81,7 +79,7 @@ export default function OnboardingTable({ entries }: { entries: Entry[] }) {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={7}>No new joiners match this filter.</td></tr>
+              <tr><td colSpan={6}>No new joiners match this filter.</td></tr>
             )}
           </tbody>
         </table>
@@ -123,10 +121,6 @@ export default function OnboardingTable({ entries }: { entries: Entry[] }) {
                 <div>
                   <label>Position</label>
                   <input name="position" defaultValue={active.position} required />
-                </div>
-                <div>
-                  <label>Org unit</label>
-                  <input name="org_unit" defaultValue={active.org_unit} required />
                 </div>
                 <div>
                   <label>Start date</label>

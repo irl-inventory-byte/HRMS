@@ -5,19 +5,12 @@ import { Employee } from "@/types/hrms";
 
 export default function EmployeeTable({ employees }: { employees: Employee[] }) {
   const [query, setQuery] = useState("");
-  const [orgUnit, setOrgUnit] = useState("all");
   const [status, setStatus] = useState("all");
-
-  const orgUnits = useMemo(
-    () => Array.from(new Set(employees.map((e) => e.org_unit).filter(Boolean))),
-    [employees]
-  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return employees.filter((e) => {
-      if (orgUnit !== "all" && e.org_unit !== orgUnit) return false;
-      if (status !== "all" && e.status !== status) return false;
+      if (status !== "all" && String(e.status) !== status) return false;
       if (q) {
         const haystack = [
           e.emp_id, e.name, e.office_email, e.personal_email,
@@ -26,7 +19,7 @@ export default function EmployeeTable({ employees }: { employees: Employee[] }) 
       }
       return true;
     });
-  }, [employees, query, orgUnit, status]);
+  }, [employees, query, status]);
 
   return (
     <>
@@ -37,12 +30,6 @@ export default function EmployeeTable({ employees }: { employees: Employee[] }) 
           onChange={(e) => setQuery(e.target.value)}
           style={{ flex: 1 }}
         />
-        <select value={orgUnit} onChange={(e) => setOrgUnit(e.target.value)}>
-          <option value="all">All org units</option>
-          {orgUnits.map((u) => (
-            <option key={u} value={u}>{u}</option>
-          ))}
-        </select>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="all">All statuses</option>
           <option value="active">Active</option>
@@ -61,7 +48,6 @@ export default function EmployeeTable({ employees }: { employees: Employee[] }) 
               <th>Emp ID</th>
               <th>Name</th>
               <th>Title</th>
-              <th>Org Unit</th>
               <th>Manager</th>
               <th>Joining Date</th>
               <th>Status</th>
@@ -78,12 +64,11 @@ export default function EmployeeTable({ employees }: { employees: Employee[] }) 
                 <td>{e.emp_id}</td>
                 <td><strong>{e.name}</strong></td>
                 <td>{e.title}</td>
-                <td>{e.org_unit}</td>
                 <td>{e.manager ?? "—"}</td>
                 <td>{e.joining_date}</td>
                 <td>
                   <span className="badge">
-                    {e.status.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase())}
+                    {String(e.status) === "notice_period" ? "Notice Period" : String(e.status) === "active" ? "Active" : "Exited"}
                   </span>
                 </td>
                 <td>{e.contract_end ?? "—"}</td>
@@ -94,7 +79,7 @@ export default function EmployeeTable({ employees }: { employees: Employee[] }) 
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={12}>No employees match this filter.</td></tr>
+              <tr><td colSpan={11}>No employees match this filter.</td></tr>
             )}
           </tbody>
         </table>
