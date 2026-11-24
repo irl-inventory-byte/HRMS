@@ -10,6 +10,8 @@ export async function fileExitForm(formData: FormData) {
   }
 
   const employee_id = formData.get("employee_id") as string;
+  const employee_full_name_entered = formData.get("employee_full_name_entered") as string;
+  const employee_id_entered = formData.get("employee_id_entered") as string;
   const employee_official_email = formData.get("employee_official_email") as string;
   const reporting_manager_name = formData.get("reporting_manager_name") as string;
   const exit_reason = formData.get("exit_reason") as string;
@@ -33,6 +35,8 @@ export async function fileExitForm(formData: FormData) {
   await supabase.from("exit_forms").insert({
     employee_id,
     filed_by_manager_id: filerProfile?.employee_id ?? employee_id,
+    employee_full_name_entered,
+    employee_id_entered,
     employee_official_email,
     reporting_manager_name,
     exit_reason,

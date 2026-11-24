@@ -14,26 +14,28 @@ export default async function OffboardingFormPage() {
       <header className="top"><h1>Offboarding Form</h1></header>
       <div className="card">
         <form action={fileExitForm}>
-          <label>Employee</label>
+          <label>Employee (link to record)</label>
           <select name="employee_id" required>
             {(employees ?? []).map((e) => (
               <option key={e.id} value={e.id}>{e.emp_id} — {e.name}</option>
             ))}
           </select>
 
+          <label>Employee Full Name (as per company records)</label>
+          <input name="employee_full_name_entered" required />
+
+          <label>Employee ID</label>
+          <input name="employee_id_entered" required />
+
           <label>Employee Official Email ID</label>
           <input
             name="employee_official_email"
-            type="email"
-            placeholder='If the employee has no work email, enter "N/A"'
+            placeholder='If the employee does not have a work email, enter "N/A"'
             required
           />
 
           <label>Reporting Manager Full Name</label>
           <input name="reporting_manager_name" required />
-
-          <label>Exit reason</label>
-          <input name="exit_reason" required />
 
           <label>Last Working Day (LWD)</label>
           <input type="date" name="last_working_day" required />
@@ -53,14 +55,14 @@ export default async function OffboardingFormPage() {
             <option value="no_laptop_assigned">No Laptops Assigned</option>
           </select>
           <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: -8, marginBottom: 12 }}>
-            If returning to the IT Team, the respective manager should submit the laptop
-            (with its serial number) to the IT Team on the employee&apos;s last working day.
+            If the laptop is to be returned to the IT Team, the respective manager should submit
+            the laptop (with its serial number) to the IT Team on the employee&apos;s last working day.
           </p>
 
           <label>Laptop Serial Number (S/N)</label>
           <input
             name="laptop_serial_number"
-            placeholder='Enter in CAPITAL LETTERS, or "N/A" if none assigned'
+            placeholder='Enter in CAPITAL LETTERS. If no laptop is assigned, enter "N/A"'
             required
           />
 
@@ -74,9 +76,12 @@ export default async function OffboardingFormPage() {
           <label>Mobile Number (for company-issued SIM card)</label>
           <input
             name="company_sim_mobile_number"
-            placeholder='If Yes, enter the mobile number. If No, enter "N/A"'
+            placeholder='If Yes, provide the mobile number. If No, enter "N/A"'
             required
           />
+
+          <label>Exit reason</label>
+          <input name="exit_reason" required />
 
           <label>Additional Comments</label>
           <textarea name="notes" rows={3}></textarea>
