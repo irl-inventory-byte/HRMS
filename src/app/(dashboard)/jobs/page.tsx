@@ -4,8 +4,11 @@ import JobsTable from "./JobsTable";
 
 export default async function JobsPage() {
   const supabase = createClient();
-  const { data: openings } = await supabase.from("job_openings").select("*").order("created_at", { ascending: false });
-  const { data: applications } = await supabase.from("job_applications").select("*").order("created_at", { ascending: false });
+
+  const [{ data: openings }, { data: applications }] = await Promise.all([
+    supabase.from("job_openings").select("*").order("created_at", { ascending: false }),
+    supabase.from("job_applications").select("*").order("created_at", { ascending: false }),
+  ]);
 
   const appCountByOpening = new Map<string, number>();
   for (const a of applications ?? []) {

@@ -5,8 +5,10 @@ import InterviewsTable from "./InterviewsTable";
 export default async function InterviewsPage() {
   const supabase = createClient();
 
-  const { data: applications } = await supabase.from("job_applications").select("*, job_openings(title)");
-  const { data: interviews } = await supabase.from("interview_entries").select("*").order("interview_date", { ascending: false });
+  const [{ data: applications }, { data: interviews }] = await Promise.all([
+    supabase.from("job_applications").select("*, job_openings(title)"),
+    supabase.from("interview_entries").select("*").order("interview_date", { ascending: false }),
+  ]);
 
   const interviewerIds = Array.from(new Set((interviews ?? []).map((i) => i.interviewer_id).filter(Boolean)));
   const { data: interviewerProfiles } = interviewerIds.length

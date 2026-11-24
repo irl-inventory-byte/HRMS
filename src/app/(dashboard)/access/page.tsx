@@ -21,8 +21,10 @@ export default async function AccessControlPage() {
     );
   }
 
-  const { data: profiles } = await supabase.from("profiles").select("id, email, role").order("email");
-  const { data: pending } = await supabase.from("allowed_users").select("email, full_name, role").order("email");
+  const [{ data: profiles }, { data: pending }] = await Promise.all([
+    supabase.from("profiles").select("id, email, role").order("email"),
+    supabase.from("allowed_users").select("email, full_name, role").order("email"),
+  ]);
 
   return (
     <>

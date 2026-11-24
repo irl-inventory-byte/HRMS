@@ -5,16 +5,15 @@ import ApplicationsTable from "./ApplicationsTable";
 
 export default async function ApplicationsPage() {
   const supabase = createClient();
-  const { role } = await getCurrentUserAndRole();
+
+  const [{ role }, { data: apps }, { data: employees }, { data: openings }] = await Promise.all([
+    getCurrentUserAndRole(),
+    supabase.from("internal_job_applications").select("*, employees(emp_id, name, title), job_openings(title)").order("applied_date", { ascending: false }),
+    supabase.from("employees").select("id, emp_id, name").eq("status", "active"),
+    supabase.from("job_openings").select("id, title").eq("status", "open"),
+  ]);
+
   const canDecide = ["admin", "hr"].includes(role ?? "");
-
-  const { data: apps } = await supabase
-    .from("internal_job_applications")
-    .select("*, employees(emp_id, name, title), job_openings(title)")
-    .order("applied_date", { ascending: false });
-
-  const { data: employees } = await supabase.from("employees").select("id, emp_id, name").eq("status", "active");
-  const { data: openings } = await supabase.from("job_openings").select("id, title").eq("status", "open");
 
   const rows = (apps ?? []).map((a) => ({
     id: a.id,

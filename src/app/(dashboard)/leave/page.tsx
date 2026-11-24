@@ -1,64 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndRole } from "@/lib/current-user";
-import { revalidatePath } from "next/cache";
+import { applyLeave } from "./actions";
+import LeaveTable from "./LeaveTable";
 
 const DEFAULTS: Record<string, number> = { casual: 12, sick: 10, earned: 15 };
 
 export default async function LeavePage() {
   const supabase = createClient();
-  async function applyLeave(formData: FormData) {
-    "use server";
 
-    const employeeId = String(formData.get("employee_id") ?? "").trim();
-    const leaveType = String(formData.get("leave_type") ?? "");
-    const fromDate = String(formData.get("from_date") ?? "");
-    const toDate = String(formData.get("to_date") ?? "");
-    const reason = String(formData.get("reason") ?? "").trim();
-    const start = new Date(`${fromDate}T00:00:00Z`);
-    const end = new Date(`${toDate}T00:00:00Z`);
+  const [{ role }, { data: employees }, { data: requests }, { data: balances }] = await Promise.all([
+    getCurrentUserAndRole(),
+    supabase.from("employees").select("id, emp_id, name").order("name"),
+    supabase.from("leave_requests").select("*").order("created_at", { ascending: false }),
+    supabase.from("leave_balances").select("*"),
+  ]);
 
-    if (
-      !employeeId ||
-      !["casual", "sick", "earned"].includes(leaveType) ||
-      !/^\d{4}-\d{2}-\d{2}$/.test(fromDate) ||
-      !/^\d{4}-\d{2}-\d{2}$/.test(toDate) ||
-      Number.isNaN(start.getTime()) ||
-      Number.isNaN(end.getTime()) ||
-      end < start
-    ) {
-      return;
-    }
-
-    const days = Math.floor((end.getTime() - start.getTime()) / 86_400_000) + 1;
-    const { error } = await createClient().from("leave_requests").insert({
-      employee_id: employeeId,
-      leave_type: leaveType,
-      from_date: fromDate,
-      to_date: toDate,
-      days,
-      reason: reason || null,
-      status: "pending",
-    });
-
-    if (!error) revalidatePath("/leave");
-  }
-
-  const { role } = await getCurrentUserAndRole();
   const canApprove = ["admin", "hr", "manager"].includes(role ?? "");
-
-  const { data: employees } = await supabase
-    .from("employees")
-    .select("id, emp_id, name")
-    .order("name");
-
-  const { data: requests } = await supabase
-    .from("leave_requests")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  const { data: balances } = await supabase
-    .from("leave_balances")
-    .select("*");
 
   const balanceMap = new Map((balances ?? []).map((b) => [b.employee_id, b]));
   const employeeMap = new Map((employees ?? []).map((e) => [e.id, e]));
@@ -171,44 +128,7 @@ export default async function LeavePage() {
         </div>
       </div>
 
-      <div className="card" style={{ overflowX: "auto" }}>
-        <table>
-          <thead>
-            <tr>
-              <th>Employee</th>
-              <th>Leave type</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Days</th>
-              <th>Reason</th>
-              <th>Status</th>
-              <th>Balance</th>
-              {canApprove && <th>Review</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={canApprove ? 9 : 8} style={{ textAlign: "center" }}>
-                  No leave requests found.
-                </td>
-              </tr>
-            ) : rows.map((row) => (
-              <tr key={row.id}>
-                <td>{row.emp_id} — {row.name}</td>
-                <td>{row.leave_type}</td>
-                <td>{row.from_date}</td>
-                <td>{row.to_date}</td>
-                <td>{row.days}</td>
-                <td>{row.reason || "—"}</td>
-                <td>{row.status}</td>
-                <td>{row.balance_left} / {row.balance_total}</td>
-                {canApprove && <td>{row.status === "pending" ? "Pending review" : "—"}</td>}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <LeaveTable rows={rows} canApprove={canApprove} />
     </>
   );
 }
