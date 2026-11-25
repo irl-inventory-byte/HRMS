@@ -153,3 +153,21 @@ create policy "admin/hr manage walkins" on walkin_candidates for all using (curr
 
 create policy "view own profile or admin" on profiles for select using (auth.uid() = id or current_role_name() = 'admin');
 create policy "admin manage profiles" on profiles for all using (current_role_name() = 'admin');
+
+
+alter table profiles add column if not exists email text unique;
+
+create or replace function handle_new_user()
+returns trigger as $$
+begin
+  insert into profiles (id, email, role)
+  values (new.id, new.email, 'employee')
+  on conflict (id) do nothing;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function handle_new_user();
