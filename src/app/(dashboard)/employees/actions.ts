@@ -23,7 +23,7 @@ export async function addEmployee(formData: FormData) {
   const personal_email = (formData.get("personal_email") as string) || null;
   const phone = (formData.get("phone") as string) || null;
 
-  await supabase.from("employees").insert({
+  const { error } = await supabase.from("employees").insert({
     emp_id,
     name,
     title,
@@ -36,6 +36,10 @@ export async function addEmployee(formData: FormData) {
     personal_email,
     phone,
   });
+
+  if (error) {
+    throw new Error(`Failed to save employee: ${error.message}`);
+  }
 
   revalidatePath("/employees");
 }
