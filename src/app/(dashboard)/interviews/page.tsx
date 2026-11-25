@@ -1,13 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { recordInterview } from "./actions";
 import InterviewsTable from "./InterviewsTable";
+import LogInterviewForm from "./LogInterviewForm";
 
 export default async function InterviewsPage() {
   const supabase = createClient();
 
-  const [{ data: applications }, { data: interviews }] = await Promise.all([
+  const [{ data: applications }, { data: interviews }, { data: walkins }] = await Promise.all([
     supabase.from("job_applications").select("*, job_openings(title)"),
     supabase.from("interview_entries").select("*").order("interview_date", { ascending: false }),
+    supabase.from("walkin_candidates").select("*").order("created_at"),
   ]);
 
   const interviewerIds = Array.from(new Set((interviews ?? []).map((i) => i.interviewer_id).filter(Boolean)));
@@ -62,34 +64,7 @@ export default async function InterviewsPage() {
             Every round for every candidate, matched by email. Repeat rejections are flagged automatically.
           </p>
         </div>
-        <details style={{ position: "relative" }}>
-          <summary style={{ listStyle: "none", cursor: "pointer", background: "linear-gradient(135deg, var(--accent-mid), var(--accent))", color: "#fff", border: "1px solid var(--accent)", borderRadius: 7, padding: "10px 16px", fontSize: 13, fontWeight: 600, display: "inline-block" }}>
-            + Log interview
-          </summary>
-          <div className="card" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 340, zIndex: 10 }}>
-            <form action={recordInterview}>
-              <label>Application</label>
-              <select name="application_id" required>
-                {(applications ?? []).map((a) => (
-                  <option key={a.id} value={a.id}>{a.candidate_name} — {a.candidate_email}</option>
-                ))}
-              </select>
-              <label>Round</label>
-              <input name="round" type="number" min={1} defaultValue={1} />
-              <label>Interview date</label>
-              <input name="interview_date" type="date" required />
-              <label>Outcome</label>
-              <select name="outcome" defaultValue="pending">
-                <option value="pending">Pending</option>
-                <option value="passed">Selected</option>
-                <option value="rejected">Rejected</option>
-              </select>
-              <label>Feedback</label>
-              <textarea name="feedback" rows={3}></textarea>
-              <button type="submit">Save</button>
-            </form>
-          </div>
-        </details>
+        <LogInterviewForm recordInterview={recordInterview} applications={applications ?? []} />
       </header>
 
       <div className="tiles">
@@ -101,6 +76,41 @@ export default async function InterviewsPage() {
       </div>
 
       <InterviewsTable rows={rows} />
+
+      <div className="card" style={{ marginTop: 24 }}>
+        <h3 style={{ marginTop: 0 }}>Walk-in Interview Queue</h3>
+        <div className="tablecard" style={{ boxShadow: "none", padding: 0, marginBottom: 0 }}>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Position Applied</th>
+                <th>Queue Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(walkins ?? []).map((w) => (
+                <tr key={w.id}>
+                  <td><strong>{w.name}</strong></td>
+                  <td>{w.email}</td>
+                  <td>{w.phone ?? "—"}</td>
+                  <td>{w.position_applied}</td>
+                  <td>
+                    <span className="badge">
+                      {w.queue_status === "in_progress" ? "In Progress" : w.queue_status === "done" ? "Done" : "Waiting"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {(!walkins || walkins.length === 0) && (
+                <tr><td colSpan={5}>No walk-in candidates in the queue.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </>
   );
 }
