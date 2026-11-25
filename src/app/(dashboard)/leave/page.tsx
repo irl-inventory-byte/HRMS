@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUserAndRole } from "@/lib/current-user";
-import { applyLeave } from "./actions";
+import { applyLeave, updateLeaveStatus } from "./actions";
 import LeaveTable from "./LeaveTable";
+import ApplyLeaveForm from "./ApplyLeaveForm";
 
 const DEFAULTS: Record<string, number> = { casual: 12, sick: 10, earned: 15 };
 
@@ -67,46 +68,7 @@ export default async function LeavePage() {
           </p>
         </div>
 
-        <details style={{ position: "relative" }}>
-          <summary style={{
-            listStyle: "none", cursor: "pointer",
-            background: "linear-gradient(135deg, var(--accent-mid), var(--accent))",
-            color: "#fff", border: "1px solid var(--accent)", borderRadius: 7,
-            padding: "10px 16px", fontSize: 13, fontWeight: 600, display: "inline-block",
-          }}>
-            + Apply leave
-          </summary>
-          <div className="card" style={{
-            position: "absolute", right: 0, top: "calc(100% + 8px)", width: 340, zIndex: 10,
-          }}>
-            <form action={applyLeave}>
-              <label>Employee</label>
-              <select name="employee_id" required>
-                {(employees ?? []).map((e) => (
-                  <option key={e.id} value={e.id}>{e.emp_id} — {e.name}</option>
-                ))}
-              </select>
-
-              <label>Leave type</label>
-              <select name="leave_type" required>
-                <option value="casual">Casual</option>
-                <option value="sick">Sick</option>
-                <option value="earned">Earned</option>
-              </select>
-
-              <label>From</label>
-              <input name="from_date" type="date" required />
-
-              <label>To</label>
-              <input name="to_date" type="date" required />
-
-              <label>Reason</label>
-              <input name="reason" />
-
-              <button type="submit">Submit request</button>
-            </form>
-          </div>
-        </details>
+        <ApplyLeaveForm applyLeave={applyLeave} employees={employees ?? []} />
       </header>
 
       <div className="tiles">
@@ -128,7 +90,7 @@ export default async function LeavePage() {
         </div>
       </div>
 
-      <LeaveTable rows={rows} canApprove={canApprove} />
+      <LeaveTable rows={rows} canApprove={canApprove} updateLeaveStatus={updateLeaveStatus} />
     </>
   );
 }
