@@ -5,8 +5,8 @@ import { getCurrentUserAndRole } from "@/lib/current-user";
 
 export async function addEmployee(formData: FormData) {
   const { role } = await getCurrentUserAndRole();
-  if (!["admin", "hr"].includes(role ?? "")) {
-    throw new Error("Only admins or HR can add employees.");
+  if (!["admin", "hr", "manager"].includes(role ?? "")) {
+    throw new Error("Only admins, HR, or managers can add employees.");
   }
 
   const supabase = createClient();
