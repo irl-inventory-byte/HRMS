@@ -16,19 +16,26 @@ export default function LoginPage() {
         textAlign: "center",
         borderTop: "3px solid var(--accent)",
       }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
           <Image
-            src="/instawork-logo.png"
+            src="/instawork-logo.svg"
             alt="Instawork"
-            width={56}
-            height={56}
-            style={{ borderRadius: 12 }}
+            width={180}
+            height={40}
+            style={{ objectFit: "contain" }}
+            priority
           />
         </div>
 
-        <h1 style={{ fontSize: 26, marginBottom: 4 }}>Hiring</h1>
-        <p style={{ color: "var(--text-dim)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 28 }}>
-          Sign in
+        <p style={{
+          color: "var(--text-dim)",
+          fontSize: 13,
+          fontWeight: 600,
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+          marginBottom: 28,
+        }}>
+          Hiring
         </p>
 
         <form action={signInWithGoogle}>
