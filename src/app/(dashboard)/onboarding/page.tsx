@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { addOnboardingEntry } from "./actions";
 import { CHECKLIST_ITEMS } from "./checklistItems";
 import OnboardingTable from "./OnboardingTable";
+import NewJoinerOnboardingForm from "./NewJoinerOnboardingForm";
 
 export default async function OnboardingPage() {
   const supabase = createClient();
@@ -38,29 +39,7 @@ export default async function OnboardingPage() {
           </p>
         </div>
 
-        <details style={{ position: "relative" }}>
-          <summary style={{
-            listStyle: "none", cursor: "pointer",
-            background: "linear-gradient(135deg, var(--accent-mid), var(--accent))",
-            color: "#fff", border: "1px solid var(--accent)", borderRadius: 7,
-            padding: "10px 16px", fontSize: 13, fontWeight: 600, display: "inline-block",
-          }}>
-            + New joiner
-          </summary>
-          <div className="card" style={{
-            position: "absolute", right: 0, top: "calc(100% + 8px)", width: 320, zIndex: 10,
-          }}>
-            <form action={addOnboardingEntry}>
-              <label>Name</label>
-              <input name="name" required />
-              <label>Position</label>
-              <input name="position" required />
-              <label>Start date</label>
-              <input name="start_date" type="date" required />
-              <button type="submit">Add joiner</button>
-            </form>
-          </div>
-        </details>
+        <NewJoinerOnboardingForm addOnboardingEntry={addOnboardingEntry} />
       </header>
 
       <div className="tiles">

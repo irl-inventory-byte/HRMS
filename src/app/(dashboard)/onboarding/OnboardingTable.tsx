@@ -129,12 +129,31 @@ export default function OnboardingTable({ entries }: { entries: Entry[] }) {
               </div>
 
               <label style={{ marginTop: 16, display: "block" }}>Onboarding checklist</label>
-              {CHECKLIST_ITEMS.map((item) => (
-                <label key={item.key} style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0" }}>
-                  <input type="checkbox" name={item.key} defaultChecked={!!active[item.key]} />
-                  {item.label}
-                </label>
-              ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+                {CHECKLIST_ITEMS.map((item) => (
+                  <label
+                    key={item.key}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      margin: 0,
+                      fontSize: 13,
+                      fontWeight: 400,
+                      color: "var(--text)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      name={item.key}
+                      defaultChecked={!!active[item.key]}
+                      style={{ width: 16, height: 16, margin: 0, flex: "0 0 auto" }}
+                    />
+                    {item.label}
+                  </label>
+                ))}
+              </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
                 <button type="button" onClick={() => setActive(null)}>Close</button>
