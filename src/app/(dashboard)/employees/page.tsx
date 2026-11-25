@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Employee } from "@/types/hrms";
 import { addEmployee } from "./actions";
 import EmployeeTable from "./EmployeeTable";
+import NewJoinerForm from "./NewJoinerForm";
 
 export default async function EmployeesPage() {
   const supabase = createClient();
@@ -27,60 +28,7 @@ export default async function EmployeesPage() {
           </p>
         </div>
 
-        <details style={{ position: "relative" }}>
-          <summary style={{
-            listStyle: "none", cursor: "pointer",
-            background: "linear-gradient(135deg, var(--accent-mid), var(--accent))",
-            color: "#fff", border: "1px solid var(--accent)", borderRadius: 7,
-            padding: "10px 16px", fontSize: 13, fontWeight: 600, display: "inline-block",
-          }}>
-            + New joiner
-          </summary>
-          <div className="card" style={{
-            position: "absolute", right: 0, top: "calc(100% + 8px)", width: 360, zIndex: 10,
-          }}>
-            <form action={addEmployee}>
-              <label>Emp ID</label>
-              <input name="emp_id" required placeholder="EMP-1006" />
-
-              <label>Name</label>
-              <input name="name" required />
-
-              <label>Title</label>
-              <input name="title" required />
-
-              <label>Manager</label>
-              <input name="manager" />
-
-              <label>Joining Date</label>
-              <input name="joining_date" type="date" required />
-
-              <label>Status</label>
-              <select name="status" defaultValue="active">
-                <option value="active">Active</option>
-                <option value="notice_period">Notice Period</option>
-                <option value="exited">Exited</option>
-              </select>
-
-              <label>Contract End</label>
-              <input name="contract_end" type="date" />
-
-              <label>Exit Reason</label>
-              <input name="exit_reason" />
-
-              <label>Office Email</label>
-              <input name="office_email" type="email" />
-
-              <label>Personal Email</label>
-              <input name="personal_email" type="email" />
-
-              <label>Phone</label>
-              <input name="phone" />
-
-              <button type="submit">Add joiner</button>
-            </form>
-          </div>
-        </details>
+        <NewJoinerForm addEmployee={addEmployee} />
       </header>
 
       <div className="tiles">
