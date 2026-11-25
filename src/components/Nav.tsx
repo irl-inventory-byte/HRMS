@@ -39,6 +39,7 @@ export default function Nav({
         <div className="navgroup">
           <div className="navlabel">Hiring</div>
           <Link href="/jobs" className={linkClass("/jobs")}>Job Openings</Link>
+          <Link href="/candidates" className={linkClass("/candidates")}>Candidates</Link>
           <Link href="/walkin" className={linkClass("/walkin")}>Walk-in Queue</Link>
           <Link href="/interviews" className={linkClass("/interviews")}>Interviews</Link>
           <Link href="/applications" className={linkClass("/applications")}>Applications</Link>

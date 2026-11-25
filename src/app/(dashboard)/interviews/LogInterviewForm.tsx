@@ -8,17 +8,28 @@ type Application = {
   candidate_email: string;
 };
 
+type WalkIn = {
+  id: string;
+  name: string;
+  email: string;
+  position_applied: string;
+};
+
 export default function LogInterviewForm({
   recordInterview,
   applications,
+  walkins,
 }: {
   recordInterview: (formData: FormData) => Promise<void>;
   applications: Application[];
+  walkins: WalkIn[];
 }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
+
+  const hasOptions = applications.length > 0 || walkins.length > 0;
 
   function handleClose() {
     setOpen(false);
@@ -33,6 +44,7 @@ export default function LogInterviewForm({
     startTransition(async () => {
       try {
         await recordInterview(formData);
+        // Auto-clear and close on success so the panel is ready for the next entry.
         handleClose();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to save interview.");
@@ -76,10 +88,23 @@ export default function LogInterviewForm({
           <form ref={formRef} onSubmit={handleSubmit}>
             <label>Application</label>
             <select name="application_id" required>
-              {applications.length === 0 && <option value="">No applications yet</option>}
-              {applications.map((a) => (
-                <option key={a.id} value={a.id}>{a.candidate_name} — {a.candidate_email}</option>
-              ))}
+              {!hasOptions && <option value="">No candidates yet</option>}
+              {applications.length > 0 && (
+                <optgroup label="Job applications">
+                  {applications.map((a) => (
+                    <option key={a.id} value={a.id}>{a.candidate_name} — {a.candidate_email}</option>
+                  ))}
+                </optgroup>
+              )}
+              {walkins.length > 0 && (
+                <optgroup label="Walk-in queue">
+                  {walkins.map((w) => (
+                    <option key={w.id} value={`walkin:${w.id}`}>
+                      {w.name} — {w.email} ({w.position_applied})
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
             <label>Round</label>
             <input name="round" type="number" min={1} defaultValue={1} />
@@ -99,7 +124,7 @@ export default function LogInterviewForm({
             )}
 
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <button type="submit" disabled={isPending || applications.length === 0}>
+              <button type="submit" disabled={isPending || !hasOptions}>
                 {isPending ? "Saving..." : "Save"}
               </button>
               <button

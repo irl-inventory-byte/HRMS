@@ -64,7 +64,11 @@ export default async function InterviewsPage() {
             Every round for every candidate, matched by email. Repeat rejections are flagged automatically.
           </p>
         </div>
-        <LogInterviewForm recordInterview={recordInterview} applications={applications ?? []} />
+        <LogInterviewForm
+          recordInterview={recordInterview}
+          applications={applications ?? []}
+          walkins={walkins ?? []}
+        />
       </header>
 
       <div className="tiles">

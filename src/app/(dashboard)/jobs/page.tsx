@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createJobOpening, submitApplication } from "./actions";
+import { createJobOpening } from "./actions";
 import JobsTable from "./JobsTable";
 import NewJobOpeningForm from "./NewJobOpeningForm";
 
@@ -44,21 +44,6 @@ export default async function JobsPage() {
       </div>
 
       <JobsTable rows={rows} />
-
-      <div className="card" style={{ marginTop: 24 }}>
-        <h3>New job application</h3>
-        <form action={submitApplication}>
-          <label>Job opening</label>
-          <select name="job_opening_id" required>
-            {(openings ?? []).map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
-          </select>
-          <label>Candidate name</label><input name="candidate_name" required />
-          <label>Candidate email</label><input name="candidate_email" type="email" required />
-          <label>Phone</label><input name="candidate_phone" />
-          <label>Resume URL</label><input name="resume_url" />
-          <button type="submit">Submit application</button>
-        </form>
-      </div>
     </>
   );
 }
