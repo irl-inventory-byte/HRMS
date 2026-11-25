@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createJobOpening, submitApplication } from "./actions";
 import JobsTable from "./JobsTable";
+import NewJobOpeningForm from "./NewJobOpeningForm";
 
 export default async function JobsPage() {
   const supabase = createClient();
@@ -32,18 +33,7 @@ export default async function JobsPage() {
           <h1>Job Openings</h1>
           <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 4 }}>Every open position and how many vacancies are left on each.</p>
         </div>
-        <details style={{ position: "relative" }}>
-          <summary style={{ listStyle: "none", cursor: "pointer", background: "linear-gradient(135deg, var(--accent-mid), var(--accent))", color: "#fff", border: "1px solid var(--accent)", borderRadius: 7, padding: "10px 16px", fontSize: 13, fontWeight: 600, display: "inline-block" }}>
-            + New opening
-          </summary>
-          <div className="card" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 320, zIndex: 10 }}>
-            <form action={createJobOpening}>
-              <label>Title</label><input name="title" required />
-              <label>Vacancies</label><input name="vacancies" type="number" min={1} defaultValue={1} />
-              <button type="submit">Create opening</button>
-            </form>
-          </div>
-        </details>
+        <NewJobOpeningForm createJobOpening={createJobOpening} />
       </header>
 
       <div className="tiles">
