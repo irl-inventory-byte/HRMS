@@ -16,7 +16,7 @@ export default function LoginPage() {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="card" style={{ width: 380, textAlign: "center" }}>
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
-          <Image src="/instawork-logo.png" alt="Instawork" width={160} height={36} style={{ objectFit: "contain" }} priority />
+          <Image src="/instawork-logo.svg" alt="Instawork" width={160} height={36} style={{ objectFit: "contain" }} priority />
         </div>
         <p style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 24 }}>
           Hiring
