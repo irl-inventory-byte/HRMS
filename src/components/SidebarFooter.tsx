@@ -1,9 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-
 export default function SidebarFooter({
   email,
   role,
@@ -11,47 +7,22 @@ export default function SidebarFooter({
   email: string | null;
   role: string | null;
 }) {
-  const router = useRouter();
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark") {
-      document.documentElement.setAttribute("data-theme", "dark");
-      setDark(true);
-    } else if (saved === "light") {
-      document.documentElement.setAttribute("data-theme", "light");
-      setDark(false);
-    }
-  }, []);
-
-  function toggleTheme() {
-    const next = dark ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
-    setDark(!dark);
-  }
-
-  async function handleSignOut() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  }
+  const roleLabel = role
+    ? role.charAt(0).toUpperCase() + role.slice(1)
+    : "Unknown";
 
   return (
-    <div className="navfoot">
-      <div className="role-box">
-        Signed in as<br />
-        <strong>{email ?? "—"}</strong>
-        {role && <><br />{role}</>}
+    <div className="sidebar-footer">
+      <div className="signedin-box">
+        <div className="signedin-label">Signed in as</div>
+        <div className="signedin-email">{email}</div>
+        <div className="signedin-role">
+          Role: <span className="role-badge">{roleLabel}</span>
+        </div>
       </div>
-      <div className="navfoot-row">
-        <button type="button" onClick={toggleTheme} className="theme-toggle-btn" title="Toggle theme" aria-label="Toggle theme">
-          {dark ? "☀" : "☾"}
-        </button>
-        <button type="button" onClick={handleSignOut}>Sign out</button>
-      </div>
+      <form action="/auth/signout" method="post">
+        <button type="submit" className="signout-btn">Sign out</button>
+      </form>
     </div>
   );
 }
