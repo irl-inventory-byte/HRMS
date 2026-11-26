@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SidebarFooter from "./SidebarFooter";
@@ -19,8 +20,16 @@ export default function Nav({
   return (
     <aside className="sidebar">
       <div className="brand">
-        <span className="mark">H</span>
-        <span className="name">HRMS</span>
+        <div className="brand-chip">
+          <Image
+            src="/instawork-logo-white.png"
+            alt="Instawork"
+            width={100}
+            height={22}
+            style={{ objectFit: "contain" }}
+            priority
+          />
+        </div>
       </div>
 
       <nav>
@@ -39,7 +48,6 @@ export default function Nav({
         <div className="navgroup">
           <div className="navlabel">Hiring</div>
           <Link href="/jobs" className={linkClass("/jobs")}>Job Openings</Link>
-          <Link href="/candidates" className={linkClass("/candidates")}>Candidates</Link>
           <Link href="/walkin" className={linkClass("/walkin")}>Walk-in Queue</Link>
           <Link href="/interviews" className={linkClass("/interviews")}>Interviews</Link>
           <Link href="/applications" className={linkClass("/applications")}>Applications</Link>
