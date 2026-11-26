@@ -1,147 +1,68 @@
-"use client";
+"use server";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentUserAndRole } from "@/lib/current-user";
 
-import { useRef, useState, useTransition } from "react";
-
-type Application = {
-  id: string;
-  candidate_name: string;
-  candidate_email: string;
-};
-
-type WalkIn = {
-  id: string;
-  name: string;
-  email: string;
-  position_applied: string;
-};
-
-export default function LogInterviewForm({
-  recordInterview,
-  applications,
-  walkins,
-}: {
-  recordInterview: (formData: FormData) => Promise<void>;
-  applications: Application[];
-  walkins: WalkIn[];
-}) {
-  const [open, setOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const hasOptions = applications.length > 0 || walkins.length > 0;
-
-  function handleClose() {
-    setOpen(false);
-    setError(null);
-    formRef.current?.reset();
+export async function recordInterview(formData: FormData) {
+  const { role } = await getCurrentUserAndRole();
+  if (!["admin", "hr", "interviewer"].includes(role ?? "")) {
+    throw new Error("Only admin, HR, or interviewer can log interviews.");
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    setError(null);
-    startTransition(async () => {
-      try {
-        await recordInterview(formData);
-        // Auto-clear and close on success so the panel is ready for the next entry.
-        handleClose();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to save interview.");
-      }
-    });
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const rawId = formData.get("application_id") as string;
+  let application_id: string | null = null;
+  let candidate_email: string | null = null;
+
+  if (rawId.startsWith("walkin:")) {
+    const walkinId = rawId.replace("walkin:", "");
+    const { data: w, error: wErr } = await supabase
+      .from("walkin_candidates")
+      .select("email")
+      .eq("id", walkinId)
+      .single();
+    if (wErr || !w) throw new Error("Could not find that walk-in candidate.");
+    candidate_email = w.email;
+    application_id = null;
+  } else {
+    application_id = rawId;
+    const { data: app, error: appErr } = await supabase
+      .from("job_applications")
+      .select("candidate_email")
+      .eq("id", application_id)
+      .single();
+    if (appErr || !app) throw new Error("Could not find that application.");
+    candidate_email = app.candidate_email;
   }
 
-  return (
-    <div style={{ position: "relative" }}>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        style={{
-          listStyle: "none", cursor: "pointer",
-          background: "linear-gradient(135deg, var(--accent-mid), var(--accent))",
-          color: "#fff", border: "1px solid var(--accent)", borderRadius: 7,
-          padding: "10px 16px", fontSize: 13, fontWeight: 600, display: "inline-block",
-        }}
-      >
-        + Log interview
-      </button>
+  const { error } = await supabase.from("interview_entries").insert({
+    application_id,
+    candidate_email,
+    interviewer_id: user?.id,
+    round: Number(formData.get("round")) || 1,
+    interview_date: formData.get("interview_date") as string,
+    outcome: formData.get("outcome") as string,
+    feedback: formData.get("feedback") as string,
+  });
+  if (error) throw new Error(`Failed to save interview: ${error.message}`);
 
-      {open && (
-        <div className="card" style={{
-          position: "absolute", right: 0, top: "calc(100% + 8px)", width: 340, zIndex: 10,
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <strong style={{ fontSize: 14 }}>Log interview</strong>
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{
-                background: "transparent", border: "1px solid var(--border, #444)",
-                color: "var(--text-dim)", borderRadius: 6, padding: "4px 10px", fontSize: 12, cursor: "pointer",
-              }}
-            >
-              ← Back
-            </button>
-          </div>
+  revalidatePath("/interviews");
+}
 
-          <form ref={formRef} onSubmit={handleSubmit}>
-            <label>Application</label>
-            <select name="application_id" required>
-              {!hasOptions && <option value="">No candidates yet</option>}
-              {applications.length > 0 && (
-                <optgroup label="Job applications">
-                  {applications.map((a) => (
-                    <option key={a.id} value={a.id}>{a.candidate_name} — {a.candidate_email}</option>
-                  ))}
-                </optgroup>
-              )}
-              {walkins.length > 0 && (
-                <optgroup label="Walk-in queue">
-                  {walkins.map((w) => (
-                    <option key={w.id} value={`walkin:${w.id}`}>
-                      {w.name} — {w.email} ({w.position_applied})
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-            <label>Round</label>
-            <input name="round" type="number" min={1} defaultValue={1} />
-            <label>Interview date</label>
-            <input name="interview_date" type="date" required />
-            <label>Outcome</label>
-            <select name="outcome" defaultValue="pending">
-              <option value="pending">Pending</option>
-              <option value="passed">Selected</option>
-              <option value="rejected">Rejected</option>
-            </select>
-            <label>Feedback</label>
-            <textarea name="feedback" rows={3}></textarea>
+export async function updateInterviewOutcome(formData: FormData) {
+  const { role } = await getCurrentUserAndRole();
+  if (!["admin", "hr", "interviewer"].includes(role ?? "")) {
+    throw new Error("Only admin, HR, or interviewer can update interviews.");
+  }
 
-            {error && (
-              <p style={{ color: "#e2493d", fontSize: 12, marginTop: 8 }}>{error}</p>
-            )}
+  const id = formData.get("id") as string;
+  const outcome = formData.get("outcome") as string;
+  const feedback = formData.get("feedback") as string;
 
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <button type="submit" disabled={isPending || !hasOptions}>
-                {isPending ? "Saving..." : "Save"}
-              </button>
-              <button
-                type="button"
-                onClick={handleClose}
-                disabled={isPending}
-                style={{
-                  background: "transparent", border: "1px solid var(--border, #444)",
-                  color: "var(--text-dim)",
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
-  );
+  const supabase = createClient();
+  const { error } = await supabase.from("interview_entries").update({ outcome, feedback }).eq("id", id);
+  if (error) throw new Error(`Failed to update interview: ${error.message}`);
+  revalidatePath("/interviews");
 }

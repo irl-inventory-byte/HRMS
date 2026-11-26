@@ -12,78 +12,29 @@ export async function recordInterview(formData: FormData) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const raw = formData.get("application_id") as string;
-  let application_id = raw;
+  const rawId = formData.get("application_id") as string;
+  let application_id: string | null = null;
   let candidate_email: string | null = null;
 
-  if (raw.startsWith("walkin:")) {
-    const walkinId = raw.slice("walkin:".length);
-    const { data: walkin } = await supabase
+  if (rawId.startsWith("walkin:")) {
+    const walkinId = rawId.replace("walkin:", "");
+    const { data: w, error: wErr } = await supabase
       .from("walkin_candidates")
-      .select("*")
+      .select("email")
       .eq("id", walkinId)
       .single();
-
-    if (!walkin) {
-      throw new Error("Walk-in candidate not found.");
-    }
-
-    // Find or create a job opening matching the position they applied for.
-    let { data: openingMatch } = await supabase
-      .from("job_openings")
-      .select("id")
-      .ilike("title", walkin.position_applied)
-      .maybeSingle();
-
-    let openingId = openingMatch?.id as string | undefined;
-    if (!openingId) {
-      const { data: newOpening, error: openingError } = await supabase
-        .from("job_openings")
-        .insert({ title: walkin.position_applied, vacancies: 1, status: "open" })
-        .select("id")
-        .single();
-      if (openingError || !newOpening) {
-        throw new Error("Failed to create a job opening for this walk-in candidate.");
-      }
-      openingId = newOpening.id;
-    }
-
-    // Reuse an existing application for this candidate + opening if one exists.
-    const { data: existingApp } = await supabase
-      .from("job_applications")
-      .select("id, candidate_email")
-      .eq("job_opening_id", openingId)
-      .eq("candidate_email", walkin.email)
-      .maybeSingle();
-
-    if (existingApp) {
-      application_id = existingApp.id;
-      candidate_email = existingApp.candidate_email;
-    } else {
-      const { data: newApp, error: appError } = await supabase
-        .from("job_applications")
-        .insert({
-          job_opening_id: openingId,
-          candidate_name: walkin.name,
-          candidate_email: walkin.email,
-          candidate_phone: walkin.phone,
-          status: "new",
-        })
-        .select("id, candidate_email")
-        .single();
-      if (appError || !newApp) {
-        throw new Error("Failed to create an application for this walk-in candidate.");
-      }
-      application_id = newApp.id;
-      candidate_email = newApp.candidate_email;
-    }
+    if (wErr || !w) throw new Error("Could not find that walk-in candidate.");
+    candidate_email = w.email;
+    application_id = null;
   } else {
-    const { data: app } = await supabase
+    application_id = rawId;
+    const { data: app, error: appErr } = await supabase
       .from("job_applications")
       .select("candidate_email")
       .eq("id", application_id)
       .single();
-    candidate_email = app?.candidate_email ?? null;
+    if (appErr || !app) throw new Error("Could not find that application.");
+    candidate_email = app.candidate_email;
   }
 
   const { error } = await supabase.from("interview_entries").insert({
@@ -95,13 +46,9 @@ export async function recordInterview(formData: FormData) {
     outcome: formData.get("outcome") as string,
     feedback: formData.get("feedback") as string,
   });
-
-  if (error) {
-    throw new Error(`Failed to save interview: ${error.message}`);
-  }
+  if (error) throw new Error(`Failed to save interview: ${error.message}`);
 
   revalidatePath("/interviews");
-  revalidatePath("/jobs");
 }
 
 export async function updateInterviewOutcome(formData: FormData) {
@@ -113,8 +60,14 @@ export async function updateInterviewOutcome(formData: FormData) {
   const id = formData.get("id") as string;
   const outcome = formData.get("outcome") as string;
   const feedback = formData.get("feedback") as string;
+  const round = Number(formData.get("round")) || 1;
+  const interview_date = formData.get("interview_date") as string;
 
   const supabase = createClient();
-  await supabase.from("interview_entries").update({ outcome, feedback }).eq("id", id);
+  const { error } = await supabase
+    .from("interview_entries")
+    .update({ outcome, feedback, round, interview_date })
+    .eq("id", id);
+  if (error) throw new Error(`Failed to update interview: ${error.message}`);
   revalidatePath("/interviews");
 }

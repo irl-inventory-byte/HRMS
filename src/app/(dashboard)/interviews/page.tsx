@@ -1,120 +1,146 @@
-import { createClient } from "@/lib/supabase/server";
-import { recordInterview } from "./actions";
-import InterviewsTable from "./InterviewsTable";
-import LogInterviewForm from "./LogInterviewForm";
+"use client";
 
-export default async function InterviewsPage() {
-  const supabase = createClient();
+import { useRef, useState, useTransition } from "react";
 
-  const [{ data: applications }, { data: interviews }, { data: walkins }] = await Promise.all([
-    supabase.from("job_applications").select("*, job_openings(title)"),
-    supabase.from("interview_entries").select("*").order("interview_date", { ascending: false }),
-    supabase.from("walkin_candidates").select("*").order("created_at"),
-  ]);
+type Application = {
+  id: string;
+  candidate_name: string;
+  candidate_email: string;
+};
 
-  const interviewerIds = Array.from(new Set((interviews ?? []).map((i) => i.interviewer_id).filter(Boolean)));
-  const { data: interviewerProfiles } = interviewerIds.length
-    ? await supabase.from("profiles").select("id, email").in("id", interviewerIds)
-    : { data: [] };
-  const interviewerEmailMap = new Map((interviewerProfiles ?? []).map((p) => [p.id, p.email]));
+type WalkIn = {
+  id: string;
+  name: string;
+  email: string;
+  position_applied: string;
+};
 
-  const appById = new Map((applications ?? []).map((a) => [a.id, a]));
+export default function LogInterviewForm({
+  recordInterview,
+  applications,
+  walkins,
+}: {
+  recordInterview: (formData: FormData) => Promise<void>;
+  applications: Application[];
+  walkins: WalkIn[];
+}) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const rejectionCounts = new Map<string, number>();
-  for (const i of interviews ?? []) {
-    if (i.outcome === "rejected") {
-      rejectionCounts.set(i.candidate_email, (rejectionCounts.get(i.candidate_email) ?? 0) + 1);
-    }
+  const hasOptions = applications.length > 0 || walkins.length > 0;
+
+  function handleClose() {
+    setOpen(false);
+    setError(null);
+    formRef.current?.reset();
   }
 
-  const rows = (interviews ?? []).map((i) => {
-    const app = appById.get(i.application_id);
-    return {
-      id: i.id,
-      candidate_name: app?.candidate_name ?? "Unknown",
-      candidate_email: i.candidate_email,
-      candidate_phone: app?.candidate_phone ?? null,
-      position: app?.job_openings?.title ?? "—",
-      round: i.round,
-      interview_date: i.interview_date,
-      interviewer: interviewerEmailMap.get(i.interviewer_id) ?? "—",
-      outcome: i.outcome,
-      feedback: i.feedback,
-      rejectionCount: rejectionCounts.get(i.candidate_email) ?? 0,
-    };
-  });
-
-  const total = rows.length;
-  const uniqueCandidates = new Set(rows.map((r) => r.candidate_email)).size;
-  const selected = rows.filter((r) => r.outcome === "passed").length;
-
-  const byEmail = new Map<string, string[]>();
-  for (const r of rows) {
-    byEmail.set(r.candidate_email, [...(byEmail.get(r.candidate_email) ?? []), r.outcome]);
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await recordInterview(formData);
+        handleClose();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to save interview.");
+      }
+    });
   }
-  const rejectedAllRounds = Array.from(byEmail.values()).filter((outcomes) => outcomes.every((o) => o === "rejected")).length;
-  const with2PlusRejections = Array.from(rejectionCounts.values()).filter((c) => c >= 2).length;
 
   return (
-    <>
-      <header className="top" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <h1>Interviews</h1>
-          <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 4 }}>
-            Every round for every candidate, matched by email. Repeat rejections are flagged automatically.
-          </p>
-        </div>
-        <LogInterviewForm
-          recordInterview={recordInterview}
-          applications={applications ?? []}
-          walkins={walkins ?? []}
-        />
-      </header>
+    <div style={{ position: "relative" }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          listStyle: "none", cursor: "pointer",
+          background: "linear-gradient(135deg, var(--accent-mid), var(--accent))",
+          color: "#fff", border: "1px solid var(--accent)", borderRadius: 7,
+          padding: "10px 16px", fontSize: 13, fontWeight: 600, display: "inline-block",
+        }}
+      >
+        + Log interview
+      </button>
 
-      <div className="tiles">
-        <div className="tile" style={{ borderTop: "3px solid var(--accent)" }}><div className="tile-value">{total}</div><div className="tile-label">Total interview records</div></div>
-        <div className="tile"><div className="tile-value">{uniqueCandidates}</div><div className="tile-label">Unique candidates</div></div>
-        <div className="tile" style={{ borderTop: "3px solid #2ecc71" }}><div className="tile-value">{selected}</div><div className="tile-label">Selected</div></div>
-        <div className="tile" style={{ borderTop: "3px solid #e2493d" }}><div className="tile-value">{rejectedAllRounds}</div><div className="tile-label">Rejected (all rounds)</div></div>
-        <div className="tile" style={{ borderTop: "3px solid #e2a33d" }}><div className="tile-value">{with2PlusRejections}</div><div className="tile-label">Candidates with 2+ rejections</div></div>
-      </div>
+      {open && (
+        <div className="card" style={{
+          position: "absolute", right: 0, top: "calc(100% + 8px)", width: 340, zIndex: 10,
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <strong style={{ fontSize: 14 }}>Log interview</strong>
+            <button
+              type="button"
+              onClick={handleClose}
+              style={{
+                background: "transparent", border: "1px solid var(--border, #444)",
+                color: "var(--text-dim)", borderRadius: 6, padding: "4px 10px", fontSize: 12, cursor: "pointer",
+              }}
+            >
+              ← Back
+            </button>
+          </div>
 
-      <InterviewsTable rows={rows} />
-
-      <div className="card" style={{ marginTop: 24 }}>
-        <h3 style={{ marginTop: 0 }}>Walk-in Interview Queue</h3>
-        <div className="tablecard" style={{ boxShadow: "none", padding: 0, marginBottom: 0 }}>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Position Applied</th>
-                <th>Queue Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(walkins ?? []).map((w) => (
-                <tr key={w.id}>
-                  <td><strong>{w.name}</strong></td>
-                  <td>{w.email}</td>
-                  <td>{w.phone ?? "—"}</td>
-                  <td>{w.position_applied}</td>
-                  <td>
-                    <span className="badge">
-                      {w.queue_status === "in_progress" ? "In Progress" : w.queue_status === "done" ? "Done" : "Waiting"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {(!walkins || walkins.length === 0) && (
-                <tr><td colSpan={5}>No walk-in candidates in the queue.</td></tr>
+          <form ref={formRef} onSubmit={handleSubmit}>
+            <label>Application</label>
+            <select name="application_id" required>
+              {!hasOptions && <option value="">No candidates yet</option>}
+              {applications.length > 0 && (
+                <optgroup label="Job applications">
+                  {applications.map((a) => (
+                    <option key={a.id} value={a.id}>{a.candidate_name} — {a.candidate_email}</option>
+                  ))}
+                </optgroup>
               )}
-            </tbody>
-          </table>
+              {walkins.length > 0 && (
+                <optgroup label="Walk-in queue">
+                  {walkins.map((w) => (
+                    <option key={w.id} value={`walkin:${w.id}`}>
+                      {w.name} — {w.email} ({w.position_applied})
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+            <label>Round</label>
+            <input name="round" type="number" min={1} defaultValue={1} />
+            <label>Interview date</label>
+            <input name="interview_date" type="date" required />
+            <label>Outcome</label>
+            <select name="outcome" defaultValue="pending">
+              <option value="pending">Pending</option>
+              <option value="passed">Selected</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <label>Feedback</label>
+            <textarea name="feedback" rows={3}></textarea>
+
+            {error && (
+              <p style={{ color: "#e2493d", fontSize: 12, marginTop: 8 }}>{error}</p>
+            )}
+
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <button type="submit" disabled={isPending || !hasOptions}>
+                {isPending ? "Saving..." : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={isPending}
+                style={{
+                  background: "transparent", border: "1px solid var(--border, #444)",
+                  color: "var(--text-dim)",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 }
