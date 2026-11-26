@@ -19,7 +19,12 @@ export async function addPerson(formData: FormData) {
   const mobile = formData.get("mobile") as string;
 
   const supabase = createClient();
-  await supabase.from("people").insert({ full_name, role, city, email, mobile });
+  const { error } = await supabase.from("people").insert({ full_name, role, city, email, mobile });
+
+  if (error) {
+    throw new Error(`Failed to add person: ${error.message}`);
+  }
+
   revalidatePath("/people");
 }
 
@@ -27,6 +32,11 @@ export async function deactivatePerson(formData: FormData) {
   await requireAdminOrHr();
   const id = formData.get("id") as string;
   const supabase = createClient();
-  await supabase.from("people").update({ status: "inactive" }).eq("id", id);
+  const { error } = await supabase.from("people").update({ status: "inactive" }).eq("id", id);
+
+  if (error) {
+    throw new Error(`Failed to deactivate person: ${error.message}`);
+  }
+
   revalidatePath("/people");
 }

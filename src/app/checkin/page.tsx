@@ -1,64 +1,21 @@
-"use client";
+import { createClient } from "@/lib/supabase/server";
+import CheckInForm from "./CheckInForm";
 
-import { useRef, useState, useTransition } from "react";
-import { selfCheckIn } from "./actions";
-
-export default function CheckInForm({ openings }: { openings: { id: string; title: string }[] }) {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [isPending, startTransition] = useTransition();
-  const [status, setStatus] = useState<{ success: boolean; error: string | null } | null>(null);
-
-  function handleSubmit(formData: FormData) {
-    startTransition(async () => {
-      const result = await selfCheckIn(formData);
-      setStatus(result);
-      if (result.success) {
-        formRef.current?.reset();
-      }
-    });
-  }
-
-  if (status?.success) {
-    return (
-      <div className="card" style={{ textAlign: "center" }}>
-        <h3 style={{ marginBottom: 8 }}>You're checked in!</h3>
-        <p style={{ color: "var(--text-dim)", fontSize: 13 }}>
-          A member of our team will call you shortly.
-        </p>
-      </div>
-    );
-  }
+export default async function CheckInPage() {
+  const supabase = createClient();
+  const { data: openings } = await supabase
+    .from("job_openings")
+    .select("id, title")
+    .eq("status", "open")
+    .order("title");
 
   return (
-    <div className="card">
-      <form ref={formRef} action={handleSubmit}>
-        <label>Full name</label>
-        <input name="name" required />
-
-        <label>Email</label>
-        <input name="email" type="email" required />
-
-        <label>Phone</label>
-        <input name="phone" />
-
-        <label>Position applying for</label>
-        <select name="position_applied" required defaultValue="">
-          <option value="" disabled>Select a position</option>
-          {openings.map((o) => (
-            <option key={o.id} value={o.title}>{o.title}</option>
-          ))}
-        </select>
-
-        {status?.error && (
-          <p style={{ color: "var(--crit)", fontSize: 13, marginBottom: 10 }}>
-            {status.error}
-          </p>
-        )}
-
-        <button type="submit" disabled={isPending}>
-          {isPending ? "Submitting..." : "Submit"}
-        </button>
-      </form>
+    <div style={{ maxWidth: 420, margin: "60px auto", padding: "0 20px" }}>
+      <h1>Walk-in Check-In</h1>
+      <p style={{ color: "var(--text-dim)", fontSize: 13, marginBottom: 20 }}>
+        Please fill this out and a member of our team will call you shortly.
+      </p>
+      <CheckInForm openings={openings ?? []} />
     </div>
   );
 }
