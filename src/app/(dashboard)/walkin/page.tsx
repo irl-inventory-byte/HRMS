@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { WalkInCandidate } from "@/types/hrms";
 import { addWalkIn, advanceQueue } from "./actions";
+import CheckInQR from "./CheckInQR";
 
 export default async function WalkInPage() {
   const supabase = createClient();
@@ -27,6 +28,8 @@ export default async function WalkInPage() {
   return (
     <>
       <header className="top"><h1>Walk-in Interview Queue</h1></header>
+
+      <CheckInQR url="https://hrms-nine-pied.vercel.app/checkin" />
 
       <div className="card">
         <h4>Load candidate</h4>
