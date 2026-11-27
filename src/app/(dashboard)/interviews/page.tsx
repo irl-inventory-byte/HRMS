@@ -31,13 +31,13 @@ export default async function InterviewsPage() {
     const app = i.application_id ? appById.get(i.application_id) : null;
     return {
       id: i.id,
-      candidate_name: app?.candidate_name ?? "Walk-in",
+      candidate_name: app?.candidate_name ?? i.candidate_name ?? "Walk-in",
       candidate_email: i.candidate_email,
-      candidate_phone: app?.candidate_phone ?? null,
-      position: app?.job_openings?.title ?? "—",
+      candidate_phone: app?.candidate_phone ?? i.candidate_phone ?? null,
+      position: app?.job_openings?.title ?? i.position_label ?? "—",
       round: i.round,
       interview_date: i.interview_date,
-      interviewer: interviewerEmailMap.get(i.interviewer_id) ?? "—",
+      interviewer: interviewerEmailMap.get(i.interviewer_id) ?? i.interviewer_name ?? "—",
       outcome: i.outcome,
       feedback: i.feedback,
       rejectionCount: rejectionCounts.get(i.candidate_email) ?? 0,
