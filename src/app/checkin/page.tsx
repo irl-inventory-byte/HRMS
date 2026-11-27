@@ -11,7 +11,7 @@ export default async function CheckInPage() {
 
   return (
     <div style={{ maxWidth: 420, margin: "60px auto", padding: "0 20px" }}>
-      <h1>Walk-in Check-In</h1>
+      <h1>Walk-in Interview Check-In</h1>
       <p style={{ color: "var(--text-dim)", fontSize: 13, marginBottom: 20 }}>
         Please fill this out and a member of our team will call you shortly.
       </p>

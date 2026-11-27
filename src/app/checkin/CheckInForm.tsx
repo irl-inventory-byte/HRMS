@@ -21,7 +21,7 @@ export default function CheckInForm({ openings }: { openings: { id: string; titl
   if (status?.success) {
     return (
       <div className="card" style={{ textAlign: "center" }}>
-        <h3 style={{ marginBottom: 8 }}>You're checked in!</h3>
+        <h3 style={{ marginBottom: 8 }}>Thank you for walk-in interview!</h3>
         <p style={{ color: "var(--text-dim)", fontSize: 13 }}>
           A member of our team will call you shortly.
         </p>
@@ -47,16 +47,6 @@ export default function CheckInForm({ openings }: { openings: { id: string; titl
           {openings.map((o) => (
             <option key={o.id} value={o.title}>{o.title}</option>
           ))}
-        </select>
-
-        <label>How did you hear about us?</label>
-        <select name="source" defaultValue="Walk-in">
-          <option value="Walk-in">Walk-in</option>
-          <option value="Referral">Referral</option>
-          <option value="Naukri">Naukri</option>
-          <option value="LinkedIn">LinkedIn</option>
-          <option value="Newspaper">Newspaper</option>
-          <option value="Other">Other</option>
         </select>
 
         {status?.error && (

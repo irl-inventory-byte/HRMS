@@ -9,9 +9,9 @@ export default function CheckInQR({ url }: { url: string }) {
         <QRCodeSVG value={url} size={160} />
       </div>
       <div style={{ flex: 1 }}>
-        <h4 style={{ marginBottom: 6 }}>Self check-in QR</h4>
+        <h4 style={{ marginBottom: 6 }}>Walk-in interview QR</h4>
         <p style={{ color: "var(--text-dim)", fontSize: 13 }}>
-          Print this and place it at the front desk. Candidates scan it, fill the form themselves, and appear below automatically.
+          Print this and place it at the front desk. Candidates scan it, fill the walk-in form themselves, and appear below automatically.
         </p>
         <p style={{ fontSize: 12, color: "var(--text-faint)", marginBottom: 12 }}>{url}</p>
         <button
