@@ -81,6 +81,7 @@ export interface InterviewEntry {
 }
 
 export interface WalkInCandidate {
+  [x: string]: string | null;
   id: string;
   name: string;
   email: string;

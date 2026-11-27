@@ -39,14 +39,7 @@ export default async function WalkInPage() {
           <label>Phone</label><input name="phone" />
           <label>Position applied for</label><input name="position_applied" required />
           <label>Source</label>
-          <select name="source" defaultValue="Walk-in">
-            <option value="Walk-in">Walk-in</option>
-            <option value="Referral">Referral</option>
-            <option value="Naukri">Naukri</option>
-            <option value="LinkedIn">LinkedIn</option>
-            <option value="Newspaper">Newspaper</option>
-            <option value="Other">Other</option>
-          </select>
+          <input name="source" defaultValue="Walk-in" placeholder="e.g. Walk-in, Referral, Naukri" />
           <button type="submit">Add to queue</button>
         </form>
       </div>
@@ -59,7 +52,7 @@ export default async function WalkInPage() {
               <tr key={c.id}>
                 <td>{c.name}</td>
                 <td>{c.position_applied}</td>
-                <td>{(c as WalkInCandidate & { source?: string }).source ?? "—"}</td>
+                <td>{c.source ?? "—"}</td>
                 <td><span className="badge">{c.queue_status}</span></td>
                 <td>{(historyByEmail.get(c.email) ?? []).join(", ") || "none"}</td>
                 <td>
