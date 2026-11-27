@@ -25,6 +25,7 @@ export async function selfCheckIn(formData: FormData) {
     email,
     phone: formData.get("phone") || null,
     position_applied,
+    source: formData.get("source") || "QR Check-in",
   });
 
   if (error) {

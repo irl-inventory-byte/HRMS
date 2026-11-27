@@ -49,6 +49,16 @@ export default function CheckInForm({ openings }: { openings: { id: string; titl
           ))}
         </select>
 
+        <label>How did you hear about us?</label>
+        <select name="source" defaultValue="Walk-in">
+          <option value="Walk-in">Walk-in</option>
+          <option value="Referral">Referral</option>
+          <option value="Naukri">Naukri</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Newspaper">Newspaper</option>
+          <option value="Other">Other</option>
+        </select>
+
         {status?.error && (
           <p style={{ color: "var(--crit)", fontSize: 13, marginBottom: 10 }}>
             {status.error}

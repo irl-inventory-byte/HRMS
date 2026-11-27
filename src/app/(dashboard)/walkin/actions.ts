@@ -10,6 +10,7 @@ export async function addWalkIn(formData: FormData) {
     email: formData.get("email"),
     phone: formData.get("phone") || null,
     position_applied: formData.get("position_applied"),
+    source: formData.get("source") || "Walk-in",
   });
   revalidatePath("/walkin");
 }

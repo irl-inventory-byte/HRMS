@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { updateJobOpening, deleteJobOpening } from "./actions";
 
 type Row = {
-  id: string; title: string; org_unit: string; vacancies: number;
+  id: string; title: string; vacancies: number;
   status: string; created_at: string; applicationCount: number;
 };
 
@@ -18,7 +18,7 @@ export default function JobsTable({ rows }: { rows: Row[] }) {
     const q = query.trim().toLowerCase();
     return rows.filter((r) => {
       if (status !== "all" && r.status !== status) return false;
-      if (q && !(r.title + " " + r.org_unit).toLowerCase().includes(q)) return false;
+      if (q && !r.title.toLowerCase().includes(q)) return false;
       return true;
     });
   }, [rows, query, status]);
@@ -26,7 +26,7 @@ export default function JobsTable({ rows }: { rows: Row[] }) {
   return (
     <>
       <div style={{ display: "flex", gap: 12, margin: "16px 0", alignItems: "center" }}>
-        <input placeholder="Search position, org unit..." value={query} onChange={(e) => setQuery(e.target.value)} style={{ flex: 1 }} />
+        <input placeholder="Search position..." value={query} onChange={(e) => setQuery(e.target.value)} style={{ flex: 1 }} />
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="all">All statuses</option>
           <option value="open">Open</option>
@@ -40,7 +40,7 @@ export default function JobsTable({ rows }: { rows: Row[] }) {
         <table>
           <thead>
             <tr>
-              <th>Position</th><th>Org Unit</th><th>Vacancies</th><th>Applications</th>
+              <th>Position</th><th>Vacancies</th><th>Applications</th>
               <th>Posted</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
@@ -48,7 +48,6 @@ export default function JobsTable({ rows }: { rows: Row[] }) {
             {filtered.map((r) => (
               <tr key={r.id}>
                 <td><strong>{r.title}</strong></td>
-                <td>{r.org_unit}</td>
                 <td>{r.vacancies}</td>
                 <td>{r.applicationCount}</td>
                 <td>{r.created_at?.slice(0, 10)}</td>
@@ -60,7 +59,7 @@ export default function JobsTable({ rows }: { rows: Row[] }) {
                 <td><button onClick={() => setEditing(r)}>Edit</button></td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={7}>No openings match this filter.</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={6}>No openings match this filter.</td></tr>}
           </tbody>
         </table>
       </div>
@@ -76,8 +75,6 @@ export default function JobsTable({ rows }: { rows: Row[] }) {
               <input type="hidden" name="id" value={editing.id} />
               <label>Title</label>
               <input name="title" defaultValue={editing.title} required />
-              <label>Org unit</label>
-              <input name="org_unit" defaultValue={editing.org_unit} required />
               <label>Vacancies</label>
               <input name="vacancies" type="number" min={0} defaultValue={editing.vacancies} />
               <label>Status</label>
