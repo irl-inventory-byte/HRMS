@@ -16,7 +16,7 @@ export async function addPerson(formData: FormData) {
   const role = formData.get("role") as string;
   const city = formData.get("city") as string;
   const email = (formData.get("email") as string).trim().toLowerCase();
-  const mobile = formData.get("mobile") as string;
+  const mobile = (formData.get("mobile") as string) || null;
 
   const supabase = createClient();
   const { error } = await supabase.from("people").insert({ full_name, role, city, email, mobile });

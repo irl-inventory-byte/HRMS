@@ -13,7 +13,7 @@ export default async function PeoplePage() {
         A lighter-weight person registry — for assigning things to people across hubs/cities, separate from full employee records.
       </p>
       <p style={{ color: "var(--text-dim)", fontSize: 13, marginBottom: 16 }}>
-        {(people ?? []).length} people. Email and mobile number are required when adding a person.
+        {(people ?? []).length} people. Email is required when adding a person; mobile number is optional.
         Use their Google login email to link their account. Deactivate instead of deleting so history stays intact.
       </p>
 
@@ -35,7 +35,7 @@ export default async function PeoplePage() {
           </div>
           <div><label>City</label><input name="city" /></div>
           <div><label>Email (required)</label><input name="email" type="email" required /></div>
-          <div><label>Mobile (required)</label><input name="mobile" required /></div>
+          <div><label>Mobile</label><input name="mobile" /></div>
           <button type="submit">Add person</button>
         </form>
       </div>
