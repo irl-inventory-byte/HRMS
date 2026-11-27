@@ -49,6 +49,9 @@ export default function CheckInForm({ openings }: { openings: { id: string; titl
           ))}
         </select>
 
+        <label>Source</label>
+        <input name="source" placeholder="e.g. Walk-in, Referral, Naukri" />
+
         {status?.error && (
           <p style={{ color: "var(--crit)", fontSize: 13, marginBottom: 10 }}>
             {status.error}
